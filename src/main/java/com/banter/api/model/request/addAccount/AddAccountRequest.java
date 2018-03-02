@@ -1,4 +1,4 @@
-package com.banter.api.model.requests;
+package com.banter.api.model.request.addAccount;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -8,7 +8,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.Map;
 
 /**
  * POJO for mapping a request from /add/account to an object

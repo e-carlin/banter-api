@@ -1,8 +1,8 @@
 package com.banter.api.controller;
 
-import com.banter.api.model.requests.AddAccountRequest;
-import com.banter.api.model.Institution;
-import com.banter.api.repository.InstitutionRepository;
+import com.banter.api.model.item.InstitutionTokenItem;
+import com.banter.api.model.request.addAccount.AddAccountRequest;
+import com.banter.api.repository.InstitutionTokenRepository;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.ItemPublicTokenExchangeRequest;
 import com.plaid.client.response.ItemPublicTokenExchangeResponse;
@@ -13,9 +13,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import retrofit2.Response;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
+import javax.validation.Validation;
+import javax.websocket.OnError;
 import java.io.IOException;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.Set;
 
 @ToString
 @RestController
@@ -30,19 +35,14 @@ public class AccountController {
     private String plaidPublicKey;
 
     @Autowired
-    InstitutionRepository insitutionRepository;
+    InstitutionTokenRepository insitutionTokenRepository;
 //
 //    @Autowired
 //    AccountRepository accountRepository;
 
-//    @PostMapping("/account/add")
-//    public void addAccount(@RequestBody AddAccountRequest addAccountRequest) {
-//
-//    }
-
     @PostMapping("/account/add")
     @ResponseStatus(HttpStatus.CREATED)
-    public void addAccount(@Valid @RequestBody AddAccountRequest addAccountRequest) {
+    public void addAccount(@Valid @RequestBody AddAccountRequest addAccountRequest) throws ConstraintViolationException{
         System.out.println("Add account called");
         System.out.println("Request is: "+ addAccountRequest);
 
@@ -70,25 +70,37 @@ public class AccountController {
             String itemId = response.body().getItemId();
             System.out.println("ItemId: "+itemId);
             System.out.println("accessToken: "+accessToken);
-
-            @Valid Institution institution = new Institution();
-            institution.setAccessToken(accessToken);
-            institution.setItemId(itemId);
-            institution.setName(addAccountRequest.getInstitution().getInstitutionId());
-            institution.setInstitutionId(addAccountRequest.getInstitution().getInstitutionId());
-            institution.setUserEmail("evan+fakefromaddaccount@carlin.com"); // TODO: Get the userEmail from the authorization token header
-            insitutionRepository.save(institution);
+            //TODO: Remove hard coded email
+            saveInstitutionTokenItem(response.body().getItemId(), response.body().getAccessToken(), "evforward123+hardcodedfromaddaccount@gmail.com");
 
             //TODO: save accounts
         }
         else {
             try {
                 System.out.println("Response was unsuccessful: "+response.errorBody().string());
+                //TODO: Return error to client
             } catch (IOException e) {
                 e.printStackTrace();
                 System.out.println("Couldn't parse response error body");
             }
         }
         //TODO: return nice message
+    }
+    private void saveInstitutionTokenItem(String itemId, String accessToken, String userEmail) throws ConstraintViolationException {
+        //TODO: This doesn't seem like good DI
+        InstitutionTokenItem institutionTokenItem = new InstitutionTokenItem();
+        institutionTokenItem.setItemId(itemId);
+        institutionTokenItem.setAccessToken(accessToken);
+        institutionTokenItem.setUserEmail(userEmail);
+
+        Set<ConstraintViolation<InstitutionTokenItem>> errors = Validation.buildDefaultValidatorFactory().getValidator().validate(institutionTokenItem);
+        if(!errors.isEmpty()) {
+            System.out.println("Error validating institutionTokenItem");
+            throw new ConstraintViolationException(errors);
+        }
+        else{
+            System.out.println("InstitutionTokenItem is: "+institutionTokenItem.toString());
+            insitutionTokenRepository.save(institutionTokenItem);
+        }
     }
 }

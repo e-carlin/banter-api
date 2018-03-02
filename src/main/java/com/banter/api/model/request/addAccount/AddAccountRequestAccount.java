@@ -1,4 +1,4 @@
-package com.banter.api.model.requests;
+package com.banter.api.model.request.addAccount;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -8,14 +8,18 @@ import javax.validation.constraints.NotEmpty;
 
 @ToString
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class AddAccountRequestInstitution {
+public class AddAccountRequestAccount {
 
+    @NotEmpty private String id;
     @NotEmpty private String name;
-    @NotEmpty private String institutionId;
+    @NotEmpty private String type; //TODO: Type should probably be an enum
 
-    public String getInstitutionId() { return this.institutionId; }
-    public void setInstitutionId(String institutionId) { this.institutionId = institutionId; }
+    public String getId() { return this.id; }
+    public void setId(String id) { this.id = id; }
 
     public String getName() { return this.name; }
     public void setName(String name) { this.name = name; }
+
+    public String getType() { return this.type; }
+    public void setType(String type) { this.type = type; }
 }
