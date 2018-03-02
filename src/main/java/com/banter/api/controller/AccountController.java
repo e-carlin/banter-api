@@ -2,7 +2,6 @@ package com.banter.api.controller;
 
 import com.banter.api.model.requests.AddAccountRequest;
 import com.banter.api.model.Institution;
-import com.banter.api.model.requests.AddInstitutionRequest;
 import com.banter.api.repository.InstitutionRepository;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.ItemPublicTokenExchangeRequest;
@@ -73,14 +72,14 @@ public class AccountController {
             System.out.println("accessToken: "+accessToken);
 
             @Valid Institution institution = new Institution();
-            AddInstitutionRequest ins = addAccountRequest.getInstitution();
             institution.setAccessToken(accessToken);
             institution.setItemId(itemId);
-            institution.setName(addAccountRequest.getInstitution().getName());
+            institution.setName(addAccountRequest.getInstitution().getInstitutionId());
             institution.setInstitutionId(addAccountRequest.getInstitution().getInstitutionId());
             institution.setUserEmail("evan+fakefromaddaccount@carlin.com"); // TODO: Get the userEmail from the authorization token header
-            System.out.println("Institution to be saved is: "+institution);
             insitutionRepository.save(institution);
+
+            //TODO: save accounts
         }
         else {
             try {

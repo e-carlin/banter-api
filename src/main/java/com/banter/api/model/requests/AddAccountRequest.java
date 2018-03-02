@@ -42,23 +42,24 @@ import java.util.Map;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class AddAccountRequest {
 
-    @NotNull @Valid private AddInstitutionRequest institution;
-    @NotEmpty private List<Map<String, String>> accounts;
+    @NotNull @Valid private AddAccountRequestInstitution institution;
+    @NotEmpty @Valid private List<AddAccountRequestAccount> accounts;
     @NotEmpty private String linkSessionId;
     @NotEmpty private String publicToken;
 
     public AddAccountRequest() {}
 
-    public AddInstitutionRequest getInstitution() { return this.institution; }
-    public void setInstitution (AddInstitutionRequest institution) { this.institution = institution; }
+    public AddAccountRequestInstitution getInstitution() { return this.institution; }
+    public void setInstitution (AddAccountRequestInstitution institution) { this.institution = institution; }
 
-    public List<Map<String, String>> getAccounts() { return this.accounts; }
-    public void setAccounts(List<Map<String, String>> accounts) { this.accounts = accounts; }
+    public List<AddAccountRequestAccount> getAccounts() { return this.accounts; }
+    public void setAccounts(List<AddAccountRequestAccount> accounts) { this.accounts = accounts; }
 
     public String getLinkSessionId() { return this.linkSessionId; }
     public void setLinkSessionId(String linkSessionId) { this.linkSessionId = linkSessionId; }
 
     public String getPublicToken() { return this.publicToken; }
     public void setPublicToken(String publicToken) { this.publicToken = publicToken;}
-
 }
+
+

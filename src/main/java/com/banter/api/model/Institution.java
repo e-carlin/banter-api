@@ -5,10 +5,11 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import lombok.ToString;
 
 import javax.validation.constraints.NotNull;
 
-
+@ToString(exclude = "accessToken")
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 @DynamoDBTable(tableName = "Institution")
 public class Institution {

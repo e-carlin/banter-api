@@ -8,7 +8,7 @@ import javax.validation.constraints.NotEmpty;
 
 @ToString
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class AddInstitutionRequest {
+public class AddAccountRequestInstitution {
 
     @NotEmpty private String name;
     @NotEmpty private String institutionId;
