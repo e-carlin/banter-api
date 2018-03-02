@@ -25,7 +25,7 @@ public class AccountController {
 
     @PostMapping("/account/add")
     @ResponseStatus(HttpStatus.CREATED)
-    public String addAccount(@Valid @RequestBody Institution institution) {
+    public void addAccount(@Valid @RequestBody Institution institution) {
         System.out.println("Add account called");
         System.out.println("Institution is: "+institution);
 
