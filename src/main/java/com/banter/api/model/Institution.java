@@ -8,11 +8,6 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import javax.validation.constraints.NotNull;
 
-/**
- * Overcoming snake case json
- * https://stackoverflow.com/questions/10519265/jackson-overcoming-underscores-in-favor-of-camel-case
- * search "spring" 3rd or 4th answer...
- */
 
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 @DynamoDBTable(tableName = "Institution")
@@ -38,7 +33,7 @@ public class Institution {
     public void setAccessToken(String accessToken) { this.accessToken = accessToken; }
 
     public String getName() { return this.name; }
-    public void setName() { this.name = name; }
+    public void setName(String name) { this.name = name; }
 
     public String getInstitutionId() { return this.institutionId; }
     public void setInstitutionId(String institutionId) { this.institutionId = institutionId;}
