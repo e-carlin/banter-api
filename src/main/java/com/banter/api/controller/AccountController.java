@@ -22,15 +22,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import retrofit2.Response;
 
-import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
-import javax.validation.Validation;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 @ToString
 @RestController
@@ -44,8 +39,7 @@ public class AccountController {
     @Value("${plaid.publicKey}")
     private String plaidPublicKey;
 
-    @Autowired
-    InstitutionTokenRepository insitutionTokenRepository;
+    @Autowired InstitutionTokenRepository insitutionTokenRepository;
 
     @Autowired
     AccountRepository accountRepository;
@@ -83,7 +77,12 @@ public class AccountController {
             System.out.println("ItemId: " + itemId);
             System.out.println("accessToken: " + accessToken);
             //TODO: Remove hard coded email
-            insitutionTokenRepository.save(new InstitutionTokenItem(response.body().getItemId(), response.body().getAccessToken(), "evforward123+hardcodedfromaddaccount@gmail.com"));
+            InstitutionTokenItem institutionTokenItem = new InstitutionTokenItem();
+            institutionTokenItem.setItemId(response.body().getItemId());
+            institutionTokenItem.setAccessToken(response.body().getAccessToken());
+            institutionTokenItem.setUserEmail("evforward123+hardcodedfromaddaccount@gmail.com");
+            insitutionTokenRepository.save(institutionTokenItem);
+            
             //TODO: Remove hard coded email
             saveAccountItem(addAccountRequest.getAccounts(), response.body().getItemId(), response.body().getAccessToken(), addAccountRequest.getInstitution().getName(), addAccountRequest.getInstitution().getInstitutionId(), "evforward123+hardcodedemailtoremovefromaddaccount@carlin.com");
         } else {
@@ -128,24 +127,15 @@ public class AccountController {
                     accountBalancesAttribute.setCurrent(account.getBalances().getCurrent());
                     accountBalancesAttribute.setLimit(account.getBalances().getLimit());
 
-                    accountBalancesAttribute.setLimit(66.6);
-
-
-                    AccountAttribute accountAttribute = new AccountAttribute(
-                            account.getAccountId(),
-                            account.getName(),
-                            account.getType(),
-                            account.getSubtype(),
-                            accountBalancesAttribute
-                            );
+                    AccountAttribute accountAttribute = new AccountAttribute();
+                    accountAttribute.setId(account.getAccountId());
+                    accountAttribute.setName(account.getName());
+                    accountAttribute.setType(account.getType());
+                    accountAttribute.setSubtype(account.getSubtype());
+                    accountAttribute.setBalances(accountBalancesAttribute);
                     System.out.println("Account attribute is: "+accountAttribute.toString());
                     institutionAttribute.addAccountAttribute(accountAttribute);
                 }
-//            AccountAttribute accountAttribute = new AccountAttribute();
-//            accountAttribute.setId(requestAccount.getId());
-//            accountAttribute.setName(requestAccount.getName());
-//            accountAttribute.setType(requestAccount.getType());
-//            accountAttribute.setSubtype(requestAccount.ge);
             } catch (IOException e) {
                 //TODO: Better error handling
                 System.out.println("************* FATAL ERROR Getting balances in /add/account");
