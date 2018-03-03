@@ -1,10 +1,19 @@
 package com.banter.api.controller;
 
+import com.banter.api.model.item.AccountItem;
 import com.banter.api.model.item.InstitutionTokenItem;
+import com.banter.api.model.item.attribute.AccountAttribute;
+import com.banter.api.model.item.attribute.AccountBalancesAttribute;
+import com.banter.api.model.item.attribute.InstitutionAttribute;
 import com.banter.api.model.request.addAccount.AddAccountRequest;
+import com.banter.api.model.request.addAccount.AddAccountRequestAccount;
+import com.banter.api.repository.AccountRepository;
 import com.banter.api.repository.InstitutionTokenRepository;
 import com.plaid.client.PlaidClient;
+import com.plaid.client.request.AccountsBalanceGetRequest;
 import com.plaid.client.request.ItemPublicTokenExchangeRequest;
+import com.plaid.client.response.Account;
+import com.plaid.client.response.AccountsBalanceGetResponse;
 import com.plaid.client.response.ItemPublicTokenExchangeResponse;
 import lombok.ToString;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +26,10 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import javax.validation.Validation;
-import javax.websocket.OnError;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 @ToString
@@ -36,22 +46,24 @@ public class AccountController {
 
     @Autowired
     InstitutionTokenRepository insitutionTokenRepository;
-//
-//    @Autowired
-//    AccountRepository accountRepository;
+
+    @Autowired
+    AccountRepository accountRepository;
 
     @PostMapping("/account/add")
     @ResponseStatus(HttpStatus.CREATED)
-    public void addAccount(@Valid @RequestBody AddAccountRequest addAccountRequest) throws ConstraintViolationException{
+    public void addAccount(@Valid @RequestBody AddAccountRequest addAccountRequest) throws ConstraintViolationException {
         System.out.println("Add account called");
-        System.out.println("Request is: "+ addAccountRequest);
+        System.out.println("Request is: " + addAccountRequest);
 
+        //TODO: This should be done somewehre else
         PlaidClient plaidClient = PlaidClient.newBuilder()
                 .clientIdAndSecret(plaidClientId, plaidSecretKey)
                 .publicKey(plaidPublicKey) // optional. only needed to call endpoints that require a public key
                 .sandboxBaseUrl() // or equivalent, depending on which environment you're calling into
                 .build();
 
+        //TODO: We should wrap this in our own custom object
         //TODO: Maybe move this to async. Maybe not incase we want to alert the user and have them retry. Although, we could still alert them asynchronously
         Response<ItemPublicTokenExchangeResponse> response;
         try {
@@ -68,16 +80,15 @@ public class AccountController {
         if (response.isSuccessful()) {
             String accessToken = response.body().getAccessToken();
             String itemId = response.body().getItemId();
-            System.out.println("ItemId: "+itemId);
-            System.out.println("accessToken: "+accessToken);
+            System.out.println("ItemId: " + itemId);
+            System.out.println("accessToken: " + accessToken);
             //TODO: Remove hard coded email
-            saveInstitutionTokenItem(response.body().getItemId(), response.body().getAccessToken(), "evforward123+hardcodedfromaddaccount@gmail.com");
-
-            //TODO: save accounts
-        }
-        else {
+            insitutionTokenRepository.save(new InstitutionTokenItem(response.body().getItemId(), response.body().getAccessToken(), "evforward123+hardcodedfromaddaccount@gmail.com"));
+            //TODO: Remove hard coded email
+            saveAccountItem(addAccountRequest.getAccounts(), response.body().getItemId(), response.body().getAccessToken(), addAccountRequest.getInstitution().getName(), addAccountRequest.getInstitution().getInstitutionId(), "evforward123+hardcodedemailtoremovefromaddaccount@carlin.com");
+        } else {
             try {
-                System.out.println("Response was unsuccessful: "+response.errorBody().string());
+                System.out.println("Response from Plaid was unsuccessful: " + response.errorBody().string());
                 //TODO: Return error to client
             } catch (IOException e) {
                 e.printStackTrace();
@@ -86,21 +97,71 @@ public class AccountController {
         }
         //TODO: return nice message
     }
-    private void saveInstitutionTokenItem(String itemId, String accessToken, String userEmail) throws ConstraintViolationException {
-        //TODO: This doesn't seem like good DI
-        InstitutionTokenItem institutionTokenItem = new InstitutionTokenItem();
-        institutionTokenItem.setItemId(itemId);
-        institutionTokenItem.setAccessToken(accessToken);
-        institutionTokenItem.setUserEmail(userEmail);
+    private void saveAccountItem(List<AddAccountRequestAccount> requestAccounts, String itemId, String accessToken, String institutionName, String institutionId, String userEmail) {
+        //TODO: First, check if they already have an existing AccountItem. If so get it,
+        // and add this InstitutionAttribute to it
 
-        Set<ConstraintViolation<InstitutionTokenItem>> errors = Validation.buildDefaultValidatorFactory().getValidator().validate(institutionTokenItem);
-        if(!errors.isEmpty()) {
-            System.out.println("Error validating institutionTokenItem");
-            throw new ConstraintViolationException(errors);
-        }
-        else{
-            System.out.println("InstitutionTokenItem is: "+institutionTokenItem.toString());
-            insitutionTokenRepository.save(institutionTokenItem);
-        }
+        AccountItem accountItemToSave = new AccountItem();
+        accountItemToSave.setUserEmail(userEmail);
+
+        InstitutionAttribute institutionAttribute = new InstitutionAttribute();
+        institutionAttribute.setItemId(itemId);
+        institutionAttribute.setName(institutionName);
+        institutionAttribute.setInstitutionId(institutionId);
+
+            //TODO: This should be done somewehre else
+            PlaidClient plaidClient = PlaidClient.newBuilder()
+                    .clientIdAndSecret(plaidClientId, plaidSecretKey)
+                    .publicKey(plaidPublicKey) // optional. only needed to call endpoints that require a public key
+                    .sandboxBaseUrl() // or equivalent, depending on which environment you're calling into
+                    .build();
+            //TODO: we should wrap this in our own object
+            Response<AccountsBalanceGetResponse> response;
+            try {
+                response = plaidClient.service().accountsBalanceGet(
+                        new AccountsBalanceGetRequest(accessToken))
+                        .execute();
+                List<Account> accounts = response.body().getAccounts();
+                for(Account account : accounts) {
+                    AccountBalancesAttribute accountBalancesAttribute = new AccountBalancesAttribute();
+                    accountBalancesAttribute.setAvailable(account.getBalances().getAvailable());
+                    accountBalancesAttribute.setCurrent(account.getBalances().getCurrent());
+                    accountBalancesAttribute.setLimit(account.getBalances().getLimit());
+
+                    accountBalancesAttribute.setLimit(66.6);
+
+
+                    AccountAttribute accountAttribute = new AccountAttribute(
+                            account.getAccountId(),
+                            account.getName(),
+                            account.getType(),
+                            account.getSubtype(),
+                            accountBalancesAttribute
+                            );
+                    System.out.println("Account attribute is: "+accountAttribute.toString());
+                    institutionAttribute.addAccountAttribute(accountAttribute);
+                }
+//            AccountAttribute accountAttribute = new AccountAttribute();
+//            accountAttribute.setId(requestAccount.getId());
+//            accountAttribute.setName(requestAccount.getName());
+//            accountAttribute.setType(requestAccount.getType());
+//            accountAttribute.setSubtype(requestAccount.ge);
+            } catch (IOException e) {
+                //TODO: Better error handling
+                System.out.println("************* FATAL ERROR Getting balances in /add/account");
+                e.printStackTrace();
+            }
+        accountItemToSave.addInstitutionAttribute(institutionAttribute);
+
+//        Set<ConstraintViolation<AccountItem>> errors = Validation.buildDefaultValidatorFactory().getValidator().validate(accountItemToSave);
+//        if(!errors.isEmpty()) {
+//            System.out.println("Validation errors found when trying to save new accountItem");
+//            System.out.println(Arrays.toString(errors.toArray()));
+//            throw new ConstraintViolationException(errors);
+//        }
+//        else {
+//            accountRepository.save(accountItemToSave);
+//        }
+        accountRepository.save(accountItemToSave);
     }
 }
