@@ -7,6 +7,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 
+/**
+ * This class just prints out all registered beans on application launch
+ * It has no business value it is just so I can see what is going on when debugging
+ */
 @Component
 public class ContextTeller implements CommandLineRunner {
 

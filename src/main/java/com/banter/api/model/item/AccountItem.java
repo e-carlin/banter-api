@@ -9,10 +9,14 @@ import lombok.ToString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.validation.ConstraintViolation;
 import javax.validation.Valid;
+import javax.validation.Validation;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @ToString
@@ -22,7 +26,7 @@ import java.util.List;
 public class AccountItem {
 
     @NotEmpty private String userEmail;
-    @NotEmpty @Valid private List<InstitutionAttribute> institutions;
+    @NotNull @Valid private List<InstitutionAttribute> institutions;
 
     public AccountItem() {
         this.institutions = new ArrayList<>();
@@ -35,5 +39,9 @@ public class AccountItem {
 
     public void addInstitutionAttribute(InstitutionAttribute institutionAttribute) {
         this.institutions.add(institutionAttribute);
+    }
+
+    public Set<ConstraintViolation<AccountItem>> validate() {
+        return Validation.buildDefaultValidatorFactory().getValidator().validate(this);
     }
 }

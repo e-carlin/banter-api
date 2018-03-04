@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class InstitutionAttribute {
     @NotEmpty @Setter private String itemId;
     @NotEmpty private String name;
     @NotEmpty private String institutionId;
-    @NotEmpty @Valid private ArrayList<AccountAttribute> accounts;
+    @NotNull @Valid private ArrayList<AccountAttribute> accounts;
 
     public InstitutionAttribute() {
         this.accounts = new ArrayList<>();

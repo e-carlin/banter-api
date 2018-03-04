@@ -22,10 +22,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import retrofit2.Response;
 
+import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
+import javax.validation.Validation;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 @ToString
 @RestController
@@ -143,15 +147,14 @@ public class AccountController {
             }
         accountItemToSave.addInstitutionAttribute(institutionAttribute);
 
-//        Set<ConstraintViolation<AccountItem>> errors = Validation.buildDefaultValidatorFactory().getValidator().validate(accountItemToSave);
-//        if(!errors.isEmpty()) {
-//            System.out.println("Validation errors found when trying to save new accountItem");
-//            System.out.println(Arrays.toString(errors.toArray()));
-//            throw new ConstraintViolationException(errors);
-//        }
-//        else {
-//            accountRepository.save(accountItemToSave);
-//        }
-        accountRepository.save(accountItemToSave);
+        Set<ConstraintViolation<AccountItem>> errors = accountItemToSave.validate();
+        if(!errors.isEmpty()) {
+            System.out.println("Validation errors found when trying to save new accountItem");
+            System.out.println(Arrays.toString(errors.toArray()));
+            throw new ConstraintViolationException(errors);
+        }
+        else {
+            accountRepository.save(accountItemToSave);
+        }
     }
 }
