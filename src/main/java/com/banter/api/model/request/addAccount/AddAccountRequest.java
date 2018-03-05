@@ -13,7 +13,7 @@ import java.util.List;
  * POJO for mapping a request from /add/account to an object
  *
  * {
- "institution": {
+ "institutionToken": {
  "name": "Chase",
  "institution_id": "ins_3"
  },
