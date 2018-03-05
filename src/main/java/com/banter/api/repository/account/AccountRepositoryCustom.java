@@ -9,5 +9,6 @@ import java.util.List;
 
 public interface AccountRepositoryCustom {
     AccountItem saveAccountItemFromAddAccountRequest(List<AddAccountRequestAccount> requestAccounts, String itemId, String accessToken, String institutionName, String institutionId, String userEmail) throws ConstraintViolationException, PlaidGetAccountBalanceException;
+    boolean userHasInstitution(String userEmail, String insId);
 
 }

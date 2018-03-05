@@ -1,8 +1,12 @@
 package com.banter.api.service;
 
+import com.banter.api.model.item.AccountItem;
+import com.banter.api.model.item.InstitutionTokenItem;
 import com.banter.api.model.item.attribute.AccountAttribute;
 import com.banter.api.model.item.attribute.AccountBalancesAttribute;
 import com.banter.api.model.item.attribute.InstitutionAttribute;
+import com.banter.api.repository.account.AccountRepository;
+import com.banter.api.repository.institutionToken.InstitutionTokenRepository;
 import com.banter.api.requestexceptions.PlaidGetAccountBalanceException;
 import com.plaid.client.response.Account;
 import com.plaid.client.response.AccountsBalanceGetResponse;
@@ -13,12 +17,33 @@ import org.springframework.stereotype.Service;
 import retrofit2.Response;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class InstitutionService {
 
     @Autowired private PlaidClientService plaidClientService;
+    @Autowired private AccountRepository accountRepository;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    public boolean userHasInstitution(String userEmail, String insId) {
+        Optional<AccountItem> accountItemOptional = accountRepository.findById(userEmail);
+        if(accountItemOptional.isPresent()) {
+            AccountItem accountItem = accountItemOptional.get();
+            return accountItemContainsInstitutionId(insId, accountItem);
+        }
+        return false;
+    }
+
+    private boolean accountItemContainsInstitutionId(String insId, AccountItem accountItem) {
+        List<InstitutionAttribute> institutions = accountItem.getInstitutions();
+        for(InstitutionAttribute institutionAttribute : institutions) {
+            if(institutionAttribute.getInstitutionId().equals(insId)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public InstitutionAttribute createInstitutionAttribute(String itemId, String institutionName, String institutionId, String accessToken) throws PlaidGetAccountBalanceException {
         InstitutionAttribute institutionAttribute = new InstitutionAttribute(

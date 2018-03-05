@@ -5,5 +5,5 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface InstitutionTokenRepository extends CrudRepository<InstitutionTokenItem, String> {
+public interface InstitutionTokenRepository extends CrudRepository<InstitutionTokenItem, String>{
 }

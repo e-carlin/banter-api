@@ -37,19 +37,6 @@ public class InstitutionAttribute {
         this.accounts = new ArrayList<>();
     }
 
-    public void setItemId(String itemId) {
-        this.itemId = itemId;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setInstitutionId(String institutionId) {
-        this.institutionId = institutionId;
-    }
-
-
     public void addAccountAttribute(AccountAttribute accountAttribute) {
         this.accounts.add(accountAttribute);
     }

@@ -10,6 +10,7 @@ import com.banter.api.service.InstitutionService;
 import com.banter.api.service.PlaidClientService;
 import com.plaid.client.response.Account;
 import com.plaid.client.response.AccountsBalanceGetResponse;
+import com.plaid.client.response.Institution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,5 +84,19 @@ public class AccountRepositoryImpl implements AccountRepositoryCustom {
         this.logger.debug("Success building account item: " + accountItem);
         this.accountRepository.save(accountItem);
         return accountItem;
+    }
+
+    public boolean userHasInstitution(String userEmail, String insId) {
+        Optional<AccountItem> accountItemOptional = accountRepository.findById(userEmail);
+        if(accountItemOptional.isPresent()) {
+            AccountItem accountItem = accountItemOptional.get();
+            List<InstitutionAttribute> institutionAttributes = accountItem.getInstitutions();
+            for(InstitutionAttribute institution : institutionAttributes) {
+                if(institution.getInstitutionId().equals(insId)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
