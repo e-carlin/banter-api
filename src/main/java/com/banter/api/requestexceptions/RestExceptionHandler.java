@@ -1,7 +1,6 @@
 package com.banter.api.requestexceptions;
 
 
-import com.banter.api.service.plaid.PlaidExecuteExchangePublicTokenException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -16,17 +15,14 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -103,8 +99,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
      * @return the ApiError object
      */
     @ExceptionHandler(javax.validation.ConstraintViolationException.class)
-    protected ResponseEntity<Object> handleConstraintViolation(
-            javax.validation.ConstraintViolationException ex) {
+    protected ResponseEntity<Object> handleConstraintViolation(javax.validation.ConstraintViolationException ex) {
         ApiError apiError = new ApiError(BAD_REQUEST);
         apiError.setMessage("Validation error");
         apiError.addValidationErrors(ex.getConstraintViolations());
@@ -112,17 +107,24 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Handles PlaidExecuteExchangePublicTokenException. Thrown when there is a problem exchanging
+     * Handles PlaidExchangePublicTokenException. Thrown when there is a problem exchanging
      * the public token with Plaid
      *
      * @param ex the Exception
      * @return the ApiError Object
      */
-    @ExceptionHandler(PlaidExecuteExchangePublicTokenException.class)
-    protected ResponseEntity<Object> handleExchangePulicTokenException (
-            PlaidExecuteExchangePublicTokenException ex) {
+    @ExceptionHandler(PlaidExchangePublicTokenException.class)
+    protected ResponseEntity<Object> handleExchangePulicTokenException (PlaidExchangePublicTokenException ex) {
         ApiError apiError = new ApiError(INTERNAL_SERVER_ERROR);
         apiError.setMessage("Error saving account details");
+        apiError.setDebugMessage(ex.getLocalizedMessage());
+        return buildResponseEntity(apiError);
+    }
+
+    @ExceptionHandler(PlaidGetAccountBalanceException.class)
+    protected ResponseEntity<Object> handleGetAccountBalanceException (PlaidExchangePublicTokenException ex) {
+        ApiError apiError = new ApiError(INTERNAL_SERVER_ERROR);
+        apiError.setMessage("Error retrieving balances for your accounts");
         apiError.setDebugMessage(ex.getLocalizedMessage());
         return buildResponseEntity(apiError);
     }

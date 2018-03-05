@@ -1,11 +1,14 @@
 package com.banter.api.service.plaid;
 
+import com.banter.api.requestexceptions.PlaidExchangePublicTokenException;
+import com.banter.api.requestexceptions.PlaidGetAccountBalanceException;
 import com.plaid.client.PlaidApiService;
 import com.plaid.client.PlaidClient;
+import com.plaid.client.request.AccountsBalanceGetRequest;
 import com.plaid.client.request.ItemPublicTokenExchangeRequest;
+import com.plaid.client.response.AccountsBalanceGetResponse;
 import com.plaid.client.response.ItemPublicTokenExchangeResponse;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import retrofit2.Response;
 
@@ -31,16 +34,26 @@ public class PlaidClientService {
                 .build();
     }
 
-    public Response<ItemPublicTokenExchangeResponse> exchangPublicToken(String publicToken) throws PlaidExecuteExchangePublicTokenException {
+    public Response<ItemPublicTokenExchangeResponse> exchangPublicToken(String publicToken) throws PlaidExchangePublicTokenException {
         try {
-            return plaidClient.service().itemPublicTokenExchange(new ItemPublicTokenExchangeRequest(publicToken)).execute();
+            Response<ItemPublicTokenExchangeResponse> response = plaidClient.service().itemPublicTokenExchange(new ItemPublicTokenExchangeRequest(publicToken)).execute();
+            if (response.isSuccessful()) {
+                return response;
+            } else {
+                throw new PlaidExchangePublicTokenException(response.errorBody().string());
+            }
         } catch (IOException e) {
-            throw new PlaidExecuteExchangePublicTokenException(e.getMessage());
+            throw new PlaidExchangePublicTokenException(e.getMessage());
         }
     }
 
-    //TODO: Delete, this should be wrapped up in my own methods
-    public PlaidApiService getService() {
-        return plaidClient.service();
+    public Response<AccountsBalanceGetResponse> getAccountBalance(String accessToken) throws PlaidGetAccountBalanceException {
+        try {
+            return this.plaidClient.service().accountsBalanceGet(
+                    new AccountsBalanceGetRequest(accessToken))
+                    .execute();
+        } catch (IOException e) {
+            throw new PlaidGetAccountBalanceException(e.getMessage());
+        }
     }
 }

@@ -19,4 +19,12 @@ public class AccountBalancesAttribute {
     private Double available; //Plaid can give us a null value for this
     private Double limit; //Plaid can give us null values for this
 
+    public AccountBalancesAttribute() {}
+
+    public AccountBalancesAttribute(Double current, Double available, Double limit) {
+        this.current = current;
+        this.available = available;
+        this.limit = limit;
+    }
+
 }

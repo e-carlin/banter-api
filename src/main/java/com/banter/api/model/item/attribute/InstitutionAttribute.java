@@ -26,6 +26,14 @@ public class InstitutionAttribute {
     @NotNull @Valid private ArrayList<AccountAttribute> accounts;
 
     public InstitutionAttribute() {
+
+        this.accounts = new ArrayList<>();
+    }
+
+    public InstitutionAttribute(String itemId, String name, String institutionId) {
+        this.itemId = itemId;
+        this.name = name;
+        this.institutionId = institutionId;
         this.accounts = new ArrayList<>();
     }
 
@@ -43,7 +51,6 @@ public class InstitutionAttribute {
 
 
     public void addAccountAttribute(AccountAttribute accountAttribute) {
-        System.out.println("&&&& HEY: "+accountAttribute.toString());
         this.accounts.add(accountAttribute);
     }
 }
