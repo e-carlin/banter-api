@@ -1,21 +1,15 @@
 package com.banter.api.repository.account;
 
 import com.banter.api.model.item.AccountItem;
-import com.banter.api.model.item.attribute.AccountAttribute;
-import com.banter.api.model.item.attribute.AccountBalancesAttribute;
 import com.banter.api.model.item.attribute.InstitutionAttribute;
 import com.banter.api.model.request.addAccount.AddAccountRequestAccount;
-import com.banter.api.requestexceptions.PlaidGetAccountBalanceException;
+import com.banter.api.requestexceptions.customExceptions.PlaidGetAccountBalanceException;
 import com.banter.api.service.InstitutionService;
 import com.banter.api.service.PlaidClientService;
-import com.plaid.client.response.Account;
-import com.plaid.client.response.AccountsBalanceGetResponse;
-import com.plaid.client.response.Institution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import retrofit2.Response;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;

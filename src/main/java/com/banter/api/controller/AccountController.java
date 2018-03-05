@@ -1,12 +1,14 @@
 package com.banter.api.controller;
 
+import com.banter.api.model.item.AccountItem;
 import com.banter.api.model.item.InstitutionTokenItem;
 import com.banter.api.model.request.addAccount.AddAccountRequest;
 import com.banter.api.repository.account.AccountRepository;
 import com.banter.api.repository.institutionToken.InstitutionTokenRepository;
-import com.banter.api.requestexceptions.AddDuplicateInstitutionException;
-import com.banter.api.requestexceptions.PlaidExchangePublicTokenException;
-import com.banter.api.requestexceptions.PlaidGetAccountBalanceException;
+import com.banter.api.requestexceptions.customExceptions.AddDuplicateInstitutionException;
+import com.banter.api.requestexceptions.customExceptions.NoAccountItemException;
+import com.banter.api.requestexceptions.customExceptions.PlaidExchangePublicTokenException;
+import com.banter.api.requestexceptions.customExceptions.PlaidGetAccountBalanceException;
 import com.banter.api.service.PlaidClientService;
 import com.plaid.client.response.ItemPublicTokenExchangeResponse;
 import lombok.ToString;
@@ -19,6 +21,7 @@ import retrofit2.Response;
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
+import java.util.Optional;
 
 /**
  * Controller for /account/* routes
@@ -52,7 +55,7 @@ public class AccountController {
             PlaidExchangePublicTokenException,
             PlaidGetAccountBalanceException,
             AddDuplicateInstitutionException {
-        this.logger.info("/account/add called");
+        this.logger.info("POST /account/add called");
 
         //First, check if the user has already added this institution. If so no need to go through process of adding it again
         //TODO: Remove hard coded email
@@ -79,6 +82,21 @@ public class AccountController {
                     addAccountRequest.getInstitution().getInstitutionId(),
                     HARD_CODED_EMAIL);
             //TODO: return nice message
+        }
+    }
+
+    @GetMapping("/accounts")
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody AccountItem getAccounts() throws NoAccountItemException, AddDuplicateInstitutionException {
+        logger.info("GET /accounts called");
+        //TODO: Remove hard coded email
+        Optional<AccountItem> accountItemOptional =  accountRepository.findById(HARD_CODED_EMAIL);
+        if(accountItemOptional.isPresent()) {
+            return accountItemOptional.get();
+        }
+        else { //This user doesn't have an account item
+            //TODO: Remove hard coded email
+            throw new NoAccountItemException(String.format("No accounts found for user %s.", HARD_CODED_EMAIL));
         }
     }
 }

@@ -1,13 +1,11 @@
 package com.banter.api.service;
 
 import com.banter.api.model.item.AccountItem;
-import com.banter.api.model.item.InstitutionTokenItem;
 import com.banter.api.model.item.attribute.AccountAttribute;
 import com.banter.api.model.item.attribute.AccountBalancesAttribute;
 import com.banter.api.model.item.attribute.InstitutionAttribute;
 import com.banter.api.repository.account.AccountRepository;
-import com.banter.api.repository.institutionToken.InstitutionTokenRepository;
-import com.banter.api.requestexceptions.PlaidGetAccountBalanceException;
+import com.banter.api.requestexceptions.customExceptions.PlaidGetAccountBalanceException;
 import com.plaid.client.response.Account;
 import com.plaid.client.response.AccountsBalanceGetResponse;
 import org.slf4j.Logger;

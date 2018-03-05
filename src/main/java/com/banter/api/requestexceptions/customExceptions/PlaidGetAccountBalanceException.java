@@ -1,4 +1,4 @@
-package com.banter.api.requestexceptions;
+package com.banter.api.requestexceptions.customExceptions;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

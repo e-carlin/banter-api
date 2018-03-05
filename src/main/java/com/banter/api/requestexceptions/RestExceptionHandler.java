@@ -1,7 +1,13 @@
 package com.banter.api.requestexceptions;
 
 
+import com.banter.api.requestexceptions.customExceptions.AddDuplicateInstitutionException;
+import com.banter.api.requestexceptions.customExceptions.NoAccountItemException;
+import com.banter.api.requestexceptions.customExceptions.PlaidExchangePublicTokenException;
+import com.banter.api.requestexceptions.customExceptions.PlaidGetAccountBalanceException;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -136,6 +142,16 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         apiError.setDebugMessage(ex.getLocalizedMessage());
         return buildResponseEntity(apiError);
     }
+
+    @ExceptionHandler(NoAccountItemException.class)
+    protected ResponseEntity<Object> noAccountItemException (NoAccountItemException ex) {
+        final Logger logger = LoggerFactory.getLogger(this.getClass());
+        ApiError apiError = new ApiError(BAD_REQUEST);
+        apiError.setMessage("No accounts found. Please add some accounts and try again.");
+        apiError.setDebugMessage(ex.getLocalizedMessage());
+        return buildResponseEntity(apiError);
+    }
+
 
     /**
      * Handle HttpMessageNotReadableException. Happens when request JSON is malformed.

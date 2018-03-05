@@ -1,7 +1,7 @@
 package com.banter.api.service;
 
-import com.banter.api.requestexceptions.PlaidExchangePublicTokenException;
-import com.banter.api.requestexceptions.PlaidGetAccountBalanceException;
+import com.banter.api.requestexceptions.customExceptions.PlaidExchangePublicTokenException;
+import com.banter.api.requestexceptions.customExceptions.PlaidGetAccountBalanceException;
 import com.plaid.client.PlaidClient;
 import com.plaid.client.request.AccountsBalanceGetRequest;
 import com.plaid.client.request.ItemPublicTokenExchangeRequest;
