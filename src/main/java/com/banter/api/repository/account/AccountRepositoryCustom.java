@@ -1,4 +1,4 @@
-package com.banter.api.repository;
+package com.banter.api.repository.account;
 
 import com.banter.api.model.item.AccountItem;
 import com.banter.api.model.request.addAccount.AddAccountRequestAccount;
