@@ -34,8 +34,6 @@ public class InstitutionService {
                     account.getBalances().getCurrent(),
                     account.getBalances().getAvailable(),
                     account.getBalances().getLimit());
-            logger.debug("Account balances attribute: " + accountBalancesAttribute);
-
 
             AccountAttribute accountAttribute = new AccountAttribute(
                     account.getAccountId(),

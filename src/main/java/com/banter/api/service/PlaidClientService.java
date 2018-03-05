@@ -50,10 +50,10 @@ public class PlaidClientService {
         try {
             Response<ItemPublicTokenExchangeResponse> response = plaidClient.service().itemPublicTokenExchange(new ItemPublicTokenExchangeRequest(publicToken)).execute();
             if (response.isSuccessful()) {
-                logger.debug("Success exchanging public token: "+response.body().toString());
+                logger.debug("Success exchanging public token. ItemId: "+response.body().getItemId());
                 return response;
             } else {
-                logger.error("Exchange public token response returned errors: "+response.errorBody().toString());
+                logger.error("Exchange public token response returned errors: "+response.errorBody().string());
                 throw new PlaidExchangePublicTokenException(response.errorBody().string());
             }
         } catch (IOException e) {

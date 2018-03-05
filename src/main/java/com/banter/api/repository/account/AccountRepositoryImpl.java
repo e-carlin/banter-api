@@ -63,13 +63,13 @@ public class AccountRepositoryImpl implements AccountRepositoryCustom {
                 return accountItem;
             }
         } else { //There is no existing account item so create one
-            logger.debug("No account item found for this user. Creating a new one");
+            logger.debug("This is the user's first account. Creating new AccountItem");
             accountItem = new AccountItem();
             accountItem.setUserEmail(userEmail);
         }
 
         //Add the institution attribute to the account item (either newly created or existing account item)
-        logger.debug("Creating a new institution attribute for the account item");
+        logger.debug("This is a new institution for this user. Creating a new InstitutionAttribute");
         InstitutionAttribute institutionAttribute = institutionService.createInstitutionAttribute(itemId, institutionName, institutionId, accessToken);
         accountItem.addInstitutionAttribute(institutionAttribute);
 
@@ -79,6 +79,7 @@ public class AccountRepositoryImpl implements AccountRepositoryCustom {
             throw new ConstraintViolationException(errors);
         }
 
+        this.logger.debug("Institution attribute to add is: "+institutionAttribute);
         this.logger.debug("Success building account item: " + accountItem);
         this.accountRepository.save(accountItem);
         return accountItem;
