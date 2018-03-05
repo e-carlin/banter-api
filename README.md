@@ -3,5 +3,4 @@ aws dynamodb create-table --table-name InstitutionTokens --attribute-definitions
 
 
 Validation handling
-http://localhost:63342/api/markdown-preview/styles/default.css?_ijt=g2m1t7mhmn3ir3lk4ktai0ofgk
-
+http://www.naturalprogrammer.com/spring-framework-rest-api-validation/
