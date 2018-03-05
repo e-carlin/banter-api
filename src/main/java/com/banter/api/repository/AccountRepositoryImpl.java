@@ -28,9 +28,16 @@ public class AccountRepositoryImpl implements AccountRepositoryCustom {
     private PlaidClientService plaidClientService;
 
     @Override
-    public AccountItem saveAccountItemFromAddAccountRequest(List<AddAccountRequestAccount> requestAccounts, String itemId, String accessToken, String institutionName, String institutionId, String userEmail) throws ConstraintViolationException, PlaidGetAccountBalanceException {
+    public AccountItem saveAccountItemFromAddAccountRequest(
+            List<AddAccountRequestAccount> requestAccounts,
+            String itemId, String accessToken,
+            String institutionName,
+            String institutionId,
+            String userEmail)
+            throws ConstraintViolationException, PlaidGetAccountBalanceException {
         //TODO: First, check if they already have an existing AccountItem. If so get it,
-        // and add this InstitutionAttribute to it
+        // and add this InstitutionAttribute to it, While adding the institution attribute check if the institution_id / account_id is already found
+        // IF so just update the balance
 
         AccountItem accountItemToSave = new AccountItem();
         accountItemToSave.setUserEmail(userEmail);
@@ -49,7 +56,6 @@ public class AccountRepositoryImpl implements AccountRepositoryCustom {
                     account.getBalances().getCurrent(),
                     account.getBalances().getAvailable(),
                     account.getBalances().getLimit());
-
 
 
             AccountAttribute accountAttribute = new AccountAttribute(
