@@ -92,6 +92,7 @@ public class AccountController {
         logger.info("GET /accounts called");
         String userSub = SecurityContextHolder.getContext().getAuthentication().getName();
         logger.debug(String.format("Looking up accounts for userSub: %s", userSub));
+
         Optional<AccountItem> accountItemOptional =  accountRepository.findById(userSub);
         if(accountItemOptional.isPresent()) {
             return accountItemOptional.get();

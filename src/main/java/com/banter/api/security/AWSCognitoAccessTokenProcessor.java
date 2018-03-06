@@ -24,7 +24,6 @@ public class AWSCognitoAccessTokenProcessor {
 
     private static final String EMPTY_PWD = "";
     private static final List<GrantedAuthority> NO_AUTHORITIES = new ArrayList<GrantedAuthority>();
-//    @Autowired private JwtIdTokenCredentialsHolder jwtIdTokenCredentialsHolder; //TODO: change to AccessToken...
     @Autowired private ConfigurableJWTProcessor configurableJWTProcessor;
     @Autowired private AWSCognitoConfig awsCognitoConfig;
 
@@ -34,10 +33,7 @@ public class AWSCognitoAccessTokenProcessor {
         logger.debug("In AWSCogntioAccessTokenPROCESSOR doing getAuthentication()");
 
         String accessToken = request.getHeader("Authorization");
-        logger.debug("AccessToken from header is: "+accessToken);
         if(accessToken != null) {
-            logger.debug("AccessToken is not null processing....");
-
             //This will throw exception if token isn't a valid JWT, can't be read using our keys, or is expired
             JWTClaimsSet jwtClaimsSet = getClaimsSet(accessToken);
 
@@ -50,8 +46,8 @@ public class AWSCognitoAccessTokenProcessor {
                 logger.warn("Suppliced accessToken wasn't actually an access token");
                 throw new Exception(String.format("JWT is not an access token"));
             }
-            logger.debug("accessToken verfication has succeeded. Building Authentication object");
 
+            logger.debug("accessToken verfication has succeeded. Building Authentication object");
             String sub = getSub(jwtClaimsSet);
             logger.debug(String.format("sub is: %s", sub));
             User user = new User(sub, EMPTY_PWD, NO_AUTHORITIES);

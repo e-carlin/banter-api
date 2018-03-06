@@ -24,8 +24,7 @@ public class AWSCognitoJWTAuthenticationFilter extends GenericFilterBean {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        logger.debug("*********************** In AWSCognitoJWTAuthenticationFILTER doing doFilter()");
-
+        logger.debug("In AWSCognitoJWTAuthenticationFilter.doFilter()");
         Authentication authentication = null;
         try {
             authentication = awsCognitoAccessTokenProcessor.getAuthentication((HttpServletRequest)request);
@@ -38,7 +37,6 @@ public class AWSCognitoJWTAuthenticationFilter extends GenericFilterBean {
             logger.error("Error occurred while processing AWS Cognito access token: "+e);
             SecurityContextHolder.clearContext();
         }
-
         chain.doFilter(request, response);
     }
 }

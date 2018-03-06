@@ -73,22 +73,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         JWSKeySelector keySelector = new JWSVerificationKeySelector(awsCognitoConfig.getTokenAlgorithm(), keySource);
         jwtProcessor.setJWSKeySelector(keySelector);
         return jwtProcessor;
-
-//        int CONNECTION_TIMEOUT = 5000;
-//
-//        String COGNITO_IDENTITY_POOL_URL = "https://cognito-idp.%s.amazonaws.com/%s";
-//        String JSON_WEB_TOKEN_SET_URL_SUFFIX = "/.well-known/jwks.json";
-//        String region = "us-east-1";
-//        String userPoolId = "us-east-1_M0GwiV1g7";
-//        String JWK_SET_URL = String.format(COGNITO_IDENTITY_POOL_URL + JSON_WEB_TOKEN_SET_URL_SUFFIX, region, userPoolId);
-//
-//
-//        ResourceRetriever resourceRetriever = new DefaultResourceRetriever(CONNECTION_TIMEOUT, CONNECTION_TIMEOUT);
-//        URL jwkSetURL = new URL(JWK_SET_URL);
-//        JWKSource keySource = new RemoteJWKSet(jwkSetURL, resourceRetriever);
-//        ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
-//        JWSKeySelector keySelector = new JWSVerificationKeySelector(RS256, keySource);
-//        jwtProcessor.setJWSKeySelector(keySelector);
-//        return jwtProcessor;
     }
 }

@@ -8,6 +8,6 @@ public class NoAccountItemException extends Exception{
 
     public NoAccountItemException(String message) {
         super(message);
-        logger.warn("Tried to get account data for a user. That user does not have any account data. Message: "+message);
+        logger.warn("Tried to get account data for a user. Message: "+message);
     }
 }
