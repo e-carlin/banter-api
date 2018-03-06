@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import retrofit2.Response;
 
@@ -89,14 +90,15 @@ public class AccountController {
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody AccountItem getAccounts() throws NoAccountItemException, AddDuplicateInstitutionException {
         logger.info("GET /accounts called");
-        //TODO: Remove hard coded email
-        Optional<AccountItem> accountItemOptional =  accountRepository.findById(HARD_CODED_EMAIL);
+        String userSub = SecurityContextHolder.getContext().getAuthentication().getName();
+        logger.debug(String.format("Looking up accounts for userSub: %s", userSub));
+        Optional<AccountItem> accountItemOptional =  accountRepository.findById(userSub);
         if(accountItemOptional.isPresent()) {
             return accountItemOptional.get();
         }
         else { //This user doesn't have an account item
-            //TODO: Remove hard coded email
-            throw new NoAccountItemException(String.format("No accounts found for user %s.", HARD_CODED_EMAIL));
+            logger.warn(String.format("No accounts found for userSub %s.", userSub));
+            throw new NoAccountItemException("No accounts found");
         }
     }
 }

@@ -24,7 +24,7 @@ public class AWSCognitoJWTAuthenticationFilter extends GenericFilterBean {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        logger.debug("*********************** Trying to authenticate a request");
+        logger.debug("*********************** In AWSCognitoJWTAuthenticationFILTER doing doFilter()");
 
         Authentication authentication = null;
         try {
