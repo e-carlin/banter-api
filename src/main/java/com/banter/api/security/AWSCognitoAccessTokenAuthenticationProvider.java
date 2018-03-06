@@ -6,11 +6,11 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
-public class AWSCognitoJWTAuthenticationProvider implements AuthenticationProvider
+public class AWSCognitoAccessTokenAuthenticationProvider implements AuthenticationProvider
 {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public AWSCognitoJWTAuthenticationProvider() {}
+    public AWSCognitoAccessTokenAuthenticationProvider() {}
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {

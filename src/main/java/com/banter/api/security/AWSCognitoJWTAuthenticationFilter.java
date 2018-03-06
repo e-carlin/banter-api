@@ -2,37 +2,43 @@ package com.banter.api.security;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.web.filter.GenericFilterBean;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 public class AWSCognitoJWTAuthenticationFilter extends GenericFilterBean {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final AuthenticationManager authenticationManager;
+    private AWSCognitoAccessTokenProcessor awsCognitoAccessTokenProcessor;
 
-    public AWSCognitoJWTAuthenticationFilter(AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
+    public AWSCognitoJWTAuthenticationFilter(AWSCognitoAccessTokenProcessor awsCognitoAccessTokenProcessor) {
+        this.awsCognitoAccessTokenProcessor = awsCognitoAccessTokenProcessor;
     }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         logger.debug("*********************** Trying to authenticate a request");
 
-        PreAuthenticatedAuthenticationToken requestAuthentication = new PreAuthenticatedAuthenticationToken("123", null);
-        Authentication authentication = authenticationManager.authenticate(requestAuthentication);
-        logger.debug("******** Result of authentication is: "+authentication.getDetails().toString());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        Authentication authentication = null;
+        try {
+            authentication = awsCognitoAccessTokenProcessor.getAuthentication((HttpServletRequest)request);
 
-        logger.debug("AWSCognitoJWTAuthenticationFilget is passing request down the filter chain");
+            if(authentication != null) {
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+        }
+        catch (Exception e) {
+            logger.error("Error occurred while processing AWS Cognito access token: "+e);
+            SecurityContextHolder.clearContext();
+        }
+
         chain.doFilter(request, response);
     }
 }
