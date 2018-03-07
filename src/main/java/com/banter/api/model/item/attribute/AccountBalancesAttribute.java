@@ -1,6 +1,5 @@
 package com.banter.api.model.item.attribute;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBDocument;
 import lombok.Data;
 import lombok.ToString;
 import org.springframework.stereotype.Component;
@@ -9,7 +8,6 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @ToString
-@DynamoDBDocument
 @Component
 public class AccountBalancesAttribute {
 

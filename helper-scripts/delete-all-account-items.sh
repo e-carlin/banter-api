@@ -1,6 +1,6 @@
 #!/bin/bash
 
 TABLE_NAME=Accounts
-KEY=userSub
+KEY=userId
 
-aws dynamodb scan --table-name $TABLE_NAME --attributes-to-get "userSub" --query "Items[].userSub.S" --output text --endpoint-url http://localhost:8000 | tr "\t" "\n" | xargs -t -I keyvalue aws dynamodb delete-item --table-name $TABLE_NAME --key '{"userSub": {"S": "keyvalue"}}' --endpoint-url http://localhost:8000
+aws dynamodb scan --table-name $TABLE_NAME --attributes-to-get "userId" --query "Items[].userId.S" --output text --endpoint-url http://localhost:8000 | tr "\t" "\n" | xargs -t -I keyvalue aws dynamodb delete-item --table-name $TABLE_NAME --key '{"userId": {"S": "keyvalue"}}' --endpoint-url http://localhost:8000

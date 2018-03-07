@@ -1,7 +1,5 @@
 package com.banter.api.model.item.attribute;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBDocument;
-import com.banter.api.model.item.AccountItem;
 import lombok.Data;
 import lombok.ToString;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +15,6 @@ import java.util.Set;
 
 @Data
 @ToString
-@DynamoDBDocument
 @Component
 public class AccountAttribute {
 

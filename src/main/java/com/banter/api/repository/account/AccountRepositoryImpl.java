@@ -6,10 +6,15 @@ import com.banter.api.model.request.addAccount.AddAccountRequestAccount;
 import com.banter.api.requestexceptions.customExceptions.PlaidGetAccountBalanceException;
 import com.banter.api.service.InstitutionService;
 import com.banter.api.service.PlaidClientService;
+import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.WriteResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Repository;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -17,10 +22,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-@Transactional(readOnly = true)
-public class AccountRepositoryImpl implements AccountRepositoryCustom {
+@Repository
+public class AccountRepositoryImpl implements AccountRepository {
+    private static final String ACCOUNT_COLLECTION_REF = "Accounts";
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private AccountRepository accountRepository;
@@ -28,22 +36,44 @@ public class AccountRepositoryImpl implements AccountRepositoryCustom {
     private PlaidClientService plaidClientService;
     @Autowired
     private InstitutionService institutionService;
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    @Autowired
+    Firestore db;
 
-    @Override
-    public AccountItem saveAccountItemFromAddAccountRequest(
-            List<AddAccountRequestAccount> requestAccounts,
-            String itemId, String accessToken,
-            String institutionName,
-            String institutionId,
-            String userSub)
-            throws ConstraintViolationException, PlaidGetAccountBalanceException {
+    public AccountItem save(AccountItem accountItem) throws ExecutionException, InterruptedException {
+        DocumentReference docRef = db.collection(ACCOUNT_COLLECTION_REF).document(accountItem.getUserId());
+        ApiFuture<WriteResult> result = docRef.set(accountItem);
+        WriteResult getResult = result.get();
+        logger.debug(String.format("%s document %s updated at %s", ACCOUNT_COLLECTION_REF, accountItem.getUserId(), getResult.getUpdateTime()));
+        return accountItem;
+    }
+
+
+    public Optional<AccountItem> findById(String userId) throws ExecutionException, InterruptedException {
+        DocumentReference docRef = db.collection(ACCOUNT_COLLECTION_REF).document(userId);
+        ApiFuture<DocumentSnapshot> future = docRef.get();
+            DocumentSnapshot document = future.get();
+            if(document.exists()) {
+                logger.debug("**** Got result back from firebase");
+                return Optional.of(document.toObject(AccountItem.class));
+            }
+            else {
+                logger.debug("**** No document found");
+                return Optional.empty();
+            }
+    }
+
+    public AccountItem saveAccountItemFromAddAccountRequest(List<AddAccountRequestAccount> requestAccounts,
+                                                            String itemId,
+                                                            String accessToken,
+                                                            String institutionName,
+                                                            String institutionId,
+                                                            String userId) throws ExecutionException, InterruptedException, PlaidGetAccountBalanceException {
         this.logger.debug("Saving account item from add account request");
+
         //TODO: First, check if they already have an existing AccountItem. If so get it,
-        // and add this InstitutionAttribute to it, While adding the institutionToken attribute check if the institution_id / account_id is already found
-        // IF so just update the balance
+        // and add this InstitutionAttribute to it. If the institutionAtrribute is also a duplicate just update the balances
         AccountItem accountItem;
-        Optional<AccountItem> existingAccountItem = accountRepository.findById(userSub);
+        Optional<AccountItem> existingAccountItem = accountRepository.findById(userId);
 
         //If there is already an account item for this user in the DB then use it
         if (existingAccountItem.isPresent()) {
@@ -60,7 +90,7 @@ public class AccountRepositoryImpl implements AccountRepositoryCustom {
         } else { //There is no existing account item so create one
             logger.debug("This is the user's first account. Creating new AccountItem");
             accountItem = new AccountItem();
-            accountItem.setUserSub(userSub);
+            accountItem.setUserId(userId);
         }
 
         //Add the institution attribute to the account item (either newly created or existing account item)
@@ -73,20 +103,19 @@ public class AccountRepositoryImpl implements AccountRepositoryCustom {
             logger.error("Validation errors encountered when saving accountItem: " + Arrays.toString(errors.toArray()));
             throw new ConstraintViolationException(errors);
         }
-
         this.logger.debug("Institution attribute to add is: "+institutionAttribute);
         this.logger.debug("Success building account item: " + accountItem);
         this.accountRepository.save(accountItem);
         return accountItem;
     }
 
-    public boolean userHasInstitution(String userSub, String insId) {
-        Optional<AccountItem> accountItemOptional = accountRepository.findById(userSub);
+    public boolean userHasInstitution(String userId, String institutionId) throws ExecutionException, InterruptedException {
+        Optional<AccountItem> accountItemOptional = accountRepository.findById(userId);
         if(accountItemOptional.isPresent()) {
             AccountItem accountItem = accountItemOptional.get();
             List<InstitutionAttribute> institutionAttributes = accountItem.getInstitutions();
             for(InstitutionAttribute institution : institutionAttributes) {
-                if(institution.getInstitutionId().equals(insId)) {
+                if(institution.getInstitutionId().equals(institutionId)) {
                     return true;
                 }
             }

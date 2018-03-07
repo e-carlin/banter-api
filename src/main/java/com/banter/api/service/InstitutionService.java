@@ -24,14 +24,14 @@ public class InstitutionService {
     @Autowired private AccountRepository accountRepository;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public boolean userHasInstitution(String userSub, String insId) {
-        Optional<AccountItem> accountItemOptional = accountRepository.findById(userSub);
-        if(accountItemOptional.isPresent()) {
-            AccountItem accountItem = accountItemOptional.get();
-            return accountItemContainsInstitutionId(insId, accountItem);
-        }
-        return false;
-    }
+//    public boolean userHasInstitution(String userSub, String insId) {
+////        Optional<AccountItem> accountItemOptional = accountRepository.findById(userSub);
+////        if(accountItemOptional.isPresent()) {
+////            AccountItem accountItem = accountItemOptional.get();
+////            return accountItemContainsInstitutionId(insId, accountItem);
+////        }
+////        return false;
+////    }
 
     private boolean accountItemContainsInstitutionId(String insId, AccountItem accountItem) {
         List<InstitutionAttribute> institutions = accountItem.getInstitutions();

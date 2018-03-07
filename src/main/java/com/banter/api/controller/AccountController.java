@@ -5,10 +5,7 @@ import com.banter.api.model.item.InstitutionTokenItem;
 import com.banter.api.model.request.addAccount.AddAccountRequest;
 import com.banter.api.repository.account.AccountRepository;
 import com.banter.api.repository.institutionToken.InstitutionTokenRepository;
-import com.banter.api.requestexceptions.customExceptions.AddDuplicateInstitutionException;
-import com.banter.api.requestexceptions.customExceptions.NoAccountItemException;
-import com.banter.api.requestexceptions.customExceptions.PlaidExchangePublicTokenException;
-import com.banter.api.requestexceptions.customExceptions.PlaidGetAccountBalanceException;
+import com.banter.api.requestexceptions.customExceptions.*;
 import com.banter.api.service.PlaidClientService;
 import com.plaid.client.response.ItemPublicTokenExchangeResponse;
 import lombok.ToString;
@@ -23,6 +20,7 @@ import retrofit2.Response;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Controller for /account/* routes
@@ -31,12 +29,9 @@ import java.util.Optional;
 @RestController
 public class AccountController {
 
-    @Autowired
-    InstitutionTokenRepository institutionTokenRepository;
-    @Autowired
-    AccountRepository accountRepository;
-    @Autowired
-    PlaidClientService plaidClientService;
+    @Autowired InstitutionTokenRepository institutionTokenRepository;
+    @Autowired AccountRepository accountRepository;
+    @Autowired PlaidClientService plaidClientService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     /**
@@ -53,51 +48,52 @@ public class AccountController {
             throws ConstraintViolationException,
             PlaidExchangePublicTokenException,
             PlaidGetAccountBalanceException,
-            AddDuplicateInstitutionException {
-        this.logger.info("POST /account/add called");
-        String userSub = SecurityContextHolder.getContext().getAuthentication().getName();
+            AddDuplicateInstitutionException, ExecutionException, InterruptedException {
+        this.logger.info("POST /accounts/add called");
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        logger.debug(String.format("**** adding accounts for user %s", userId));
 
         //First, check if the user has already added this institution. If so no need to go through process of adding it again
         //TODO: Remove hard coded email
-        if (accountRepository.userHasInstitution(userSub, addAccountRequest.getInstitution().getInstitutionId())) {
+        if (accountRepository.userHasInstitution(userId, addAccountRequest.getInstitution().getInstitutionId())) {
             logger.debug("The user tried to add a duplicate institution. InstitutionName: "+addAccountRequest.getInstitution().getName()+" insId:"+addAccountRequest.getInstitution().getInstitutionId());
             throw new AddDuplicateInstitutionException("User has already added institution: " + addAccountRequest.getInstitution().getName());
         } else {
-            //TODO: Maybe move this to async. Maybe not incase we want to alert the user and have them retry. Although, we could still alert them asynchronously
+//            //TODO: Maybe move this to async. Maybe not incase we want to alert the user and have them retry. Although, we could still alert them asynchronously
             Response<ItemPublicTokenExchangeResponse> response = plaidClientService.exchangePublicToken(addAccountRequest.getPublicToken());
-
-            //If the itemId (hash key) is already found this just updates the existing item. It will create a new item
-            // if the itemId isn't already in the table
-            //TODO: Remove hard coded email
+//
+//            //If the itemId (hash key) is already found this just updates the existing item. It will create a new item
+//            // if the itemId isn't already in the table
+//            //TODO: Remove hard coded email
             InstitutionTokenItem institutionTokenItem = new InstitutionTokenItem(response.body().getItemId(),
                     response.body().getAccessToken(),
-                    userSub);
+                    userId);
             institutionTokenRepository.save(institutionTokenItem);
-
-            //TODO: Remove hard coded email
+//
+//            //TODO: Remove hard coded email
             accountRepository.saveAccountItemFromAddAccountRequest(addAccountRequest.getAccounts(),
                     response.body().getItemId(),
                     response.body().getAccessToken(),
                     addAccountRequest.getInstitution().getName(),
                     addAccountRequest.getInstitution().getInstitutionId(),
-                    userSub);
+                    userId);
             //TODO: return nice message
         }
     }
 
     @GetMapping("/accounts")
     @ResponseStatus(HttpStatus.OK)
-    public @ResponseBody AccountItem getAccounts() throws NoAccountItemException, AddDuplicateInstitutionException {
+    public @ResponseBody AccountItem getAccounts() throws NoAccountItemException, AddDuplicateInstitutionException, ExecutionException, InterruptedException {
         logger.info("GET /accounts called");
-        String userSub = SecurityContextHolder.getContext().getAuthentication().getName();
-        logger.debug(String.format("Looking up accounts for userSub: %s", userSub));
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        logger.debug(String.format("Looking up accounts for userId: %s", userId));
 
-        Optional<AccountItem> accountItemOptional =  accountRepository.findById(userSub);
+        Optional<AccountItem> accountItemOptional =  accountRepository.findById(userId);
         if(accountItemOptional.isPresent()) {
             return accountItemOptional.get();
         }
         else { //This user doesn't have an account item
-            logger.warn(String.format("No accounts found for userSub %s.", userSub));
+            logger.warn(String.format("No accounts found for userId %s.", userId));
             throw new NoAccountItemException("No accounts found");
         }
     }
