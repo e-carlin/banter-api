@@ -1,6 +1,5 @@
 package com.banter.api.security;
 
-import com.nimbusds.jwt.JWTClaimsSet;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -12,29 +11,23 @@ import java.util.Collection;
  * This is the authentication object that will be made available in the security context.
  *
  */
-public class AWSCognitoAccessTokenAuthentication extends AbstractAuthenticationToken {
+public class FirebaseIdTokenAuthentication extends AbstractAuthenticationToken {
 
     private Object principal;
-    private JWTClaimsSet claimsSet;
 
-    public AWSCognitoAccessTokenAuthentication(Object principal, JWTClaimsSet jwtClaimsSet, Collection<? extends GrantedAuthority> authorities) {
+    public FirebaseIdTokenAuthentication(Object principal, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.principal = principal;
-        this.claimsSet = jwtClaimsSet;
         super.setAuthenticated(true);
     }
 
     @Override
     public Object getCredentials() {
-        throw new UnsupportedOperationException("The AWSCognitoAccessTokenAuthentication object has no credentials");
+        throw new UnsupportedOperationException("The FireBaseIdTokenAuthentication object has no credentials");
     }
 
     @Override
     public Object getPrincipal() {
         return principal;
-    }
-
-    public JWTClaimsSet getClaimsSet() {
-        return this.claimsSet;
     }
 }

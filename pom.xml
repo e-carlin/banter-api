@@ -64,9 +64,9 @@
 			<version>2.0.0.RELEASE</version>
 		</dependency>
 		<dependency>
-		<groupId>com.nimbusds</groupId>
-		<artifactId>nimbus-jose-jwt</artifactId>
-		<version>4.23</version>
+			<groupId>com.google.firebase</groupId>
+			<artifactId>firebase-admin</artifactId>
+			<version>5.9.0</version>
 		</dependency>
 	</dependencies>
 

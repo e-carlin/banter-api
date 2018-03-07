@@ -13,28 +13,28 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
-public class AWSCognitoJWTAuthenticationFilter extends GenericFilterBean {
+public class FirebaseIdTokenAuthenticationFilter extends GenericFilterBean {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private AWSCognitoAccessTokenProcessor awsCognitoAccessTokenProcessor;
+    private FirebaseIdTokenProcessor firebaseIdTokenProcessor;
 
-    public AWSCognitoJWTAuthenticationFilter(AWSCognitoAccessTokenProcessor awsCognitoAccessTokenProcessor) {
-        this.awsCognitoAccessTokenProcessor = awsCognitoAccessTokenProcessor;
+    public FirebaseIdTokenAuthenticationFilter(FirebaseIdTokenProcessor firebaseIdTokenProcessor) {
+        this.firebaseIdTokenProcessor = firebaseIdTokenProcessor;
     }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        logger.debug("In AWSCognitoJWTAuthenticationFilter.doFilter()");
+        logger.debug("In FirebaseIdTokenAuthenticationFilter.doFilter()");
         Authentication authentication = null;
         try {
-            authentication = awsCognitoAccessTokenProcessor.getAuthentication((HttpServletRequest)request);
+            authentication = firebaseIdTokenProcessor.getAuthentication((HttpServletRequest)request);
 
             if(authentication != null) {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
         catch (Exception e) {
-            logger.error("Error occurred while processing AWS Cognito access token: "+e);
+            logger.error("Error occurred while processing Firbease Id token: "+e);
             SecurityContextHolder.clearContext();
         }
         chain.doFilter(request, response);

@@ -1,17 +1,7 @@
 package com.banter.api.config;
 
-import com.banter.api.security.AWSCognitoAccessTokenProcessor;
-import com.banter.api.security.AWSCognitoJWTAuthenticationFilter;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.jwk.source.RemoteJWKSet;
-import com.nimbusds.jose.proc.JWSKeySelector;
-import com.nimbusds.jose.proc.JWSVerificationKeySelector;
-import com.nimbusds.jose.util.DefaultResourceRetriever;
-import com.nimbusds.jose.util.ResourceRetriever;
-import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
-import com.nimbusds.jwt.proc.DefaultJWTProcessor;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.banter.api.security.FirebaseIdTokenProcessor;
+import com.banter.api.security.FirebaseIdTokenAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,18 +11,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import static com.nimbusds.jose.JWSAlgorithm.RS256;
-
 import javax.servlet.http.HttpServletResponse;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 @Configuration
 @EnableWebSecurity
 // @EnableGlobalMethodSecurity //TODO: Understand what this does, I think it enables AOP and annotations like @PreAuthorize. I don't need any of that
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
-    @Autowired AWSCognitoConfig awsCognitoConfig;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -43,13 +27,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 authorizeRequests().anyRequest().authenticated(). //All requests need to be authenticated
                 and().
                 anonymous().disable(). //No "anonymous" authentication. AKA everyone must be authenticated
-                addFilterBefore(new AWSCognitoJWTAuthenticationFilter(awsCognitoAccessTokenProcessor()), BasicAuthenticationFilter.class); //This adds our AWSCognitoJWTAuthenticationFilter before the BasicAuthenticationFilter
+                addFilterBefore(new FirebaseIdTokenAuthenticationFilter(firebaseIdTokenProcessor()), BasicAuthenticationFilter.class); //This adds our FirebaseIdTokenAuthenticationFilter before the BasicAuthenticationFilter
         //Don't worry about the BasicAuthenticationFilter, we aren't using basicAuthentication. This method just needs a filter to put ours before and that is one of the filters we can put ours before.
     }
 
     @Bean
-    public AWSCognitoAccessTokenProcessor awsCognitoAccessTokenProcessor() {
-        return new AWSCognitoAccessTokenProcessor();
+    public FirebaseIdTokenProcessor firebaseIdTokenProcessor() {
+        return new FirebaseIdTokenProcessor();
     }
 
     /**
@@ -61,17 +45,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public AuthenticationEntryPoint unauthorizedEntryPoint() {
         return (request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-    }
-
-
-    @Bean
-    public ConfigurableJWTProcessor configurableJWTProcessor() throws MalformedURLException {
-        ResourceRetriever resourceRetriever = new DefaultResourceRetriever(awsCognitoConfig.getConnectionTimeout(), awsCognitoConfig.getReadTimeout());
-        URL jwkSetURL = new URL(awsCognitoConfig.getJWKURL());
-        JWKSource keySource = new RemoteJWKSet(jwkSetURL, resourceRetriever);
-        ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
-        JWSKeySelector keySelector = new JWSVerificationKeySelector(awsCognitoConfig.getTokenAlgorithm(), keySource);
-        jwtProcessor.setJWSKeySelector(keySelector);
-        return jwtProcessor;
     }
 }
