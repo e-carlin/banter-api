@@ -4,11 +4,9 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import lombok.Data;
 import lombok.ToString;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 @Data
 @ToString(exclude = "accessToken")
@@ -19,12 +17,12 @@ public class InstitutionTokenItem {
 
     @NotEmpty private String itemId;
     @NotEmpty private String accessToken;
-    @NotEmpty private String userEmail;
+    @NotEmpty private String userSub;
 
-    public InstitutionTokenItem(String itemId, String accessToken, String userEmail) {
+    public InstitutionTokenItem(String itemId, String accessToken, String userSub) {
         this.itemId = itemId;
         this.accessToken = accessToken;
-        this.userEmail = userEmail;
+        this.userSub = userSub;
     }
 
     public InstitutionTokenItem() {}

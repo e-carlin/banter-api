@@ -24,8 +24,8 @@ public class InstitutionService {
     @Autowired private AccountRepository accountRepository;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public boolean userHasInstitution(String userEmail, String insId) {
-        Optional<AccountItem> accountItemOptional = accountRepository.findById(userEmail);
+    public boolean userHasInstitution(String userSub, String insId) {
+        Optional<AccountItem> accountItemOptional = accountRepository.findById(userSub);
         if(accountItemOptional.isPresent()) {
             AccountItem accountItem = accountItemOptional.get();
             return accountItemContainsInstitutionId(insId, accountItem);

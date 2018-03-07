@@ -36,14 +36,14 @@ public class AccountRepositoryImpl implements AccountRepositoryCustom {
             String itemId, String accessToken,
             String institutionName,
             String institutionId,
-            String userEmail)
+            String userSub)
             throws ConstraintViolationException, PlaidGetAccountBalanceException {
         this.logger.debug("Saving account item from add account request");
         //TODO: First, check if they already have an existing AccountItem. If so get it,
         // and add this InstitutionAttribute to it, While adding the institutionToken attribute check if the institution_id / account_id is already found
         // IF so just update the balance
         AccountItem accountItem;
-        Optional<AccountItem> existingAccountItem = accountRepository.findById(userEmail);
+        Optional<AccountItem> existingAccountItem = accountRepository.findById(userSub);
 
         //If there is already an account item for this user in the DB then use it
         if (existingAccountItem.isPresent()) {
@@ -60,7 +60,7 @@ public class AccountRepositoryImpl implements AccountRepositoryCustom {
         } else { //There is no existing account item so create one
             logger.debug("This is the user's first account. Creating new AccountItem");
             accountItem = new AccountItem();
-            accountItem.setUserEmail(userEmail);
+            accountItem.setUserSub(userSub);
         }
 
         //Add the institution attribute to the account item (either newly created or existing account item)
@@ -80,8 +80,8 @@ public class AccountRepositoryImpl implements AccountRepositoryCustom {
         return accountItem;
     }
 
-    public boolean userHasInstitution(String userEmail, String insId) {
-        Optional<AccountItem> accountItemOptional = accountRepository.findById(userEmail);
+    public boolean userHasInstitution(String userSub, String insId) {
+        Optional<AccountItem> accountItemOptional = accountRepository.findById(userSub);
         if(accountItemOptional.isPresent()) {
             AccountItem accountItem = accountItemOptional.get();
             List<InstitutionAttribute> institutionAttributes = accountItem.getInstitutions();

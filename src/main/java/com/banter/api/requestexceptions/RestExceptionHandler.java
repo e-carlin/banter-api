@@ -138,7 +138,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(AddDuplicateInstitutionException.class)
     protected ResponseEntity<Object> addDuplicateInstitutionException (AddDuplicateInstitutionException ex) {
         ApiError apiError = new ApiError(BAD_REQUEST);
-        apiError.setMessage("This account has already been added");
+        apiError.setMessage("This institution has already been added");
         apiError.setDebugMessage(ex.getLocalizedMessage());
         return buildResponseEntity(apiError);
     }

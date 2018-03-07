@@ -39,8 +39,6 @@ public class AccountController {
     PlaidClientService plaidClientService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final String HARD_CODED_EMAIL = "evforward123+hardcodedfromaddaccount@gmail.com";
-
     /**
      * Handles POST to /account/add for adding new accounts to a user's profile
      *
@@ -49,7 +47,7 @@ public class AccountController {
      * @throws PlaidExchangePublicTokenException
      * @throws PlaidGetAccountBalanceException
      */
-    @PostMapping("/account/add")
+    @PostMapping("/accounts/add")
     @ResponseStatus(HttpStatus.CREATED)
     public void addAccount(@Valid @RequestBody AddAccountRequest addAccountRequest)
             throws ConstraintViolationException,
@@ -57,12 +55,13 @@ public class AccountController {
             PlaidGetAccountBalanceException,
             AddDuplicateInstitutionException {
         this.logger.info("POST /account/add called");
+        String userSub = SecurityContextHolder.getContext().getAuthentication().getName();
 
         //First, check if the user has already added this institution. If so no need to go through process of adding it again
         //TODO: Remove hard coded email
-        if (accountRepository.userHasInstitution(HARD_CODED_EMAIL, addAccountRequest.getInstitution().getInstitutionId())) {
+        if (accountRepository.userHasInstitution(userSub, addAccountRequest.getInstitution().getInstitutionId())) {
             logger.debug("The user tried to add a duplicate institution. InstitutionName: "+addAccountRequest.getInstitution().getName()+" insId:"+addAccountRequest.getInstitution().getInstitutionId());
-            throw new AddDuplicateInstitutionException("User has already added account: " + addAccountRequest.getInstitution().getName());
+            throw new AddDuplicateInstitutionException("User has already added institution: " + addAccountRequest.getInstitution().getName());
         } else {
             //TODO: Maybe move this to async. Maybe not incase we want to alert the user and have them retry. Although, we could still alert them asynchronously
             Response<ItemPublicTokenExchangeResponse> response = plaidClientService.exchangePublicToken(addAccountRequest.getPublicToken());
@@ -72,7 +71,7 @@ public class AccountController {
             //TODO: Remove hard coded email
             InstitutionTokenItem institutionTokenItem = new InstitutionTokenItem(response.body().getItemId(),
                     response.body().getAccessToken(),
-                    HARD_CODED_EMAIL);
+                    userSub);
             institutionTokenRepository.save(institutionTokenItem);
 
             //TODO: Remove hard coded email
@@ -81,7 +80,7 @@ public class AccountController {
                     response.body().getAccessToken(),
                     addAccountRequest.getInstitution().getName(),
                     addAccountRequest.getInstitution().getInstitutionId(),
-                    HARD_CODED_EMAIL);
+                    userSub);
             //TODO: return nice message
         }
     }

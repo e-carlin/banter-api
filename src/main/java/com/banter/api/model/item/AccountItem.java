@@ -6,7 +6,6 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import com.banter.api.model.item.attribute.InstitutionAttribute;
 import lombok.Data;
 import lombok.ToString;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.validation.ConstraintViolation;
@@ -25,7 +24,7 @@ import java.util.Set;
 @DynamoDBTable(tableName = "Accounts")
 public class AccountItem {
 
-    @NotEmpty private String userEmail;
+    @NotEmpty private String userSub;
     @NotNull @Valid private List<InstitutionAttribute> institutions;
 
     public AccountItem() {
@@ -34,8 +33,8 @@ public class AccountItem {
 
 
     @DynamoDBHashKey
-    public String getUserEmail() { return this.userEmail; }
-    public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
+    public String getUserSub() { return this.userSub; }
+    public void setUserSub(String userSub) { this.userSub = userSub; }
 
     public void addInstitutionAttribute(InstitutionAttribute institutionAttribute) {
         this.institutions.add(institutionAttribute);
