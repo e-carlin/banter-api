@@ -7,6 +7,8 @@ import com.banter.api.repository.account.AccountRepository;
 import com.banter.api.repository.institutionToken.InstitutionTokenRepository;
 import com.banter.api.requestexceptions.customExceptions.*;
 import com.banter.api.service.PlaidClientService;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.plaid.client.response.ItemPublicTokenExchangeResponse;
 import lombok.ToString;
 import org.slf4j.Logger;
@@ -29,11 +31,15 @@ import java.util.concurrent.ExecutionException;
 @RestController
 public class AccountController {
 
-    @Autowired InstitutionTokenRepository institutionTokenRepository;
-    @Autowired AccountRepository accountRepository;
-    @Autowired PlaidClientService plaidClientService;
+    @Autowired
+    InstitutionTokenRepository institutionTokenRepository;
+    @Autowired
+    AccountRepository accountRepository;
+    @Autowired
+    PlaidClientService plaidClientService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     /**
      * Handles POST to /account/add for adding new accounts to a user's profile
      *
@@ -44,7 +50,8 @@ public class AccountController {
      */
     @PostMapping("/accounts/add")
     @ResponseStatus(HttpStatus.CREATED)
-    public void addAccount(@Valid @RequestBody AddAccountRequest addAccountRequest)
+    @ResponseBody
+    public String addAccount(@Valid @RequestBody AddAccountRequest addAccountRequest)
             throws ConstraintViolationException,
             PlaidExchangePublicTokenException,
             PlaidGetAccountBalanceException,
@@ -55,9 +62,9 @@ public class AccountController {
 
         //First, check if the user has already added this institution. If so no need to go through process of adding it again
         //TODO: Remove hard coded email
-        if (accountRepository.userHasInstitution(userId, addAccountRequest.getInstitution().getInstitutionId())) {
-            logger.debug("The user tried to add a duplicate institution. InstitutionName: "+addAccountRequest.getInstitution().getName()+" insId:"+addAccountRequest.getInstitution().getInstitutionId());
-            throw new AddDuplicateInstitutionException("User has already added institution: " + addAccountRequest.getInstitution().getName());
+        if (accountRepository.userHasInstitution(userId, addAccountRequest.getInstitutionId())) {
+            logger.debug("The user tried to add a duplicate institution. InstitutionName: " + addAccountRequest.getInstitutionName() + " insId:" + addAccountRequest.getInstitutionId());
+            throw new AddDuplicateInstitutionException("User has already added institution: " + addAccountRequest.getInstitutionName());
         } else {
 //            //TODO: Maybe move this to async. Maybe not incase we want to alert the user and have them retry. Although, we could still alert them asynchronously
             Response<ItemPublicTokenExchangeResponse> response = plaidClientService.exchangePublicToken(addAccountRequest.getPublicToken());
@@ -71,28 +78,28 @@ public class AccountController {
             institutionTokenRepository.save(institutionTokenItem);
 //
 //            //TODO: Remove hard coded email
-            accountRepository.saveAccountItemFromAddAccountRequest(addAccountRequest.getAccounts(),
+            accountRepository.saveAccountItemFromAddAccountRequest(
                     response.body().getItemId(),
                     response.body().getAccessToken(),
-                    addAccountRequest.getInstitution().getName(),
-                    addAccountRequest.getInstitution().getInstitutionId(),
+                    addAccountRequest.getInstitutionName(),
+                    addAccountRequest.getInstitutionId(),
                     userId);
-            //TODO: return nice message
         }
+            return "{'status' : 'success'}"; //TODO: something better
     }
 
     @GetMapping("/accounts")
     @ResponseStatus(HttpStatus.OK)
-    public @ResponseBody AccountItem getAccounts() throws NoAccountItemException, AddDuplicateInstitutionException, ExecutionException, InterruptedException {
+    public @ResponseBody
+    AccountItem getAccounts() throws NoAccountItemException, AddDuplicateInstitutionException, ExecutionException, InterruptedException {
         logger.info("GET /accounts called");
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         logger.debug(String.format("Looking up accounts for userId: %s", userId));
 
-        Optional<AccountItem> accountItemOptional =  accountRepository.findById(userId);
-        if(accountItemOptional.isPresent()) {
+        Optional<AccountItem> accountItemOptional = accountRepository.findById(userId);
+        if (accountItemOptional.isPresent()) {
             return accountItemOptional.get();
-        }
-        else { //This user doesn't have an account item
+        } else { //This user doesn't have an account item
             logger.warn(String.format("No accounts found for userId %s.", userId));
             throw new NoAccountItemException("No accounts found");
         }

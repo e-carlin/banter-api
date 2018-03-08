@@ -2,7 +2,6 @@ package com.banter.api.repository.account;
 
 import com.banter.api.model.item.AccountItem;
 import com.banter.api.model.item.attribute.InstitutionAttribute;
-import com.banter.api.model.request.addAccount.AddAccountRequestAccount;
 import com.banter.api.requestexceptions.customExceptions.PlaidGetAccountBalanceException;
 import com.banter.api.service.InstitutionService;
 import com.banter.api.service.PlaidClientService;
@@ -53,17 +52,15 @@ public class AccountRepositoryImpl implements AccountRepository {
         ApiFuture<DocumentSnapshot> future = docRef.get();
             DocumentSnapshot document = future.get();
             if(document.exists()) {
-                logger.debug("**** Got result back from firebase");
                 return Optional.of(document.toObject(AccountItem.class));
             }
             else {
-                logger.debug("**** No document found");
+                logger.debug("No document found");
                 return Optional.empty();
             }
     }
 
-    public AccountItem saveAccountItemFromAddAccountRequest(List<AddAccountRequestAccount> requestAccounts,
-                                                            String itemId,
+    public AccountItem saveAccountItemFromAddAccountRequest(String itemId,
                                                             String accessToken,
                                                             String institutionName,
                                                             String institutionId,
@@ -84,7 +81,7 @@ public class AccountRepositoryImpl implements AccountRepository {
             //If this institution is already in the account item. Then no need to add it again. Just update the balances
             if (existingInstitutionIds.contains(institutionId)) {
                 logger.debug("This user has added this account before. Just going to update their balances. TODO: This needs to be implemented");
-                //TODO: Update balances
+                //TODO: Update balances, this is half implemented in institutionService.createInstitutionAttribute()
                 return accountItem;
             }
         } else { //There is no existing account item so create one

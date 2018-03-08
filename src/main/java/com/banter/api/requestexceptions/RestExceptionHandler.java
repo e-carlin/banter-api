@@ -24,6 +24,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.OK;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
@@ -131,7 +132,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(AddDuplicateInstitutionException.class)
     protected ResponseEntity<Object> addDuplicateInstitutionException (AddDuplicateInstitutionException ex) {
-        ApiError apiError = new ApiError(BAD_REQUEST);
+        //TODO: Maybe this should be Bad request so we can alert the user that we think they have already added this account
+        ApiError apiError = new ApiError(OK);
         apiError.setMessage("This institution has already been added");
         apiError.setDebugMessage(ex.getLocalizedMessage());
         return buildResponseEntity(apiError);

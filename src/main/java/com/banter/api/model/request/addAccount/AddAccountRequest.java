@@ -2,6 +2,7 @@ package com.banter.api.model.request.addAccount;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import lombok.Data;
 import lombok.ToString;
 
 import javax.validation.Valid;
@@ -37,22 +38,18 @@ import java.util.List;
  }
  */
 
+@Data
 @ToString
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class AddAccountRequest {
 
-    @NotNull @Valid private AddAccountRequestInstitution institution;
-    @NotEmpty @Valid private List<AddAccountRequestAccount> accounts;
     @NotEmpty private String linkSessionId;
     @NotEmpty private String publicToken;
+    @NotEmpty private String institutionName;
+    @NotEmpty private String institutionId;
 
     public AddAccountRequest() {}
 
-    public AddAccountRequestInstitution getInstitution() { return this.institution; }
-    public void setInstitution (AddAccountRequestInstitution institution) { this.institution = institution; }
-
-    public List<AddAccountRequestAccount> getAccounts() { return this.accounts; }
-    public void setAccounts(List<AddAccountRequestAccount> accounts) { this.accounts = accounts; }
 
     public String getLinkSessionId() { return this.linkSessionId; }
     public void setLinkSessionId(String linkSessionId) { this.linkSessionId = linkSessionId; }
