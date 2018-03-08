@@ -54,7 +54,6 @@ public class AccountController {
         logger.debug(String.format("**** adding accounts for user %s", userId));
 
         //First, check if the user has already added this institution. If so no need to go through process of adding it again
-        //TODO: Remove hard coded email
         if (accountRepository.userHasInstitution(userId, addAccountRequest.getInstitution().getInstitutionId())) {
             logger.debug("The user tried to add a duplicate institution. InstitutionName: "+addAccountRequest.getInstitution().getName()+" insId:"+addAccountRequest.getInstitution().getInstitutionId());
             throw new AddDuplicateInstitutionException("User has already added institution: " + addAccountRequest.getInstitution().getName());
@@ -64,19 +63,12 @@ public class AccountController {
 //
 //            //If the itemId (hash key) is already found this just updates the existing item. It will create a new item
 //            // if the itemId isn't already in the table
-//            //TODO: Remove hard coded email
             InstitutionTokenItem institutionTokenItem = new InstitutionTokenItem(response.body().getItemId(),
                     response.body().getAccessToken(),
                     userId);
             institutionTokenRepository.save(institutionTokenItem);
 //
-//            //TODO: Remove hard coded email
-            accountRepository.saveAccountItemFromAddAccountRequest(addAccountRequest.getAccounts(),
-                    response.body().getItemId(),
-                    response.body().getAccessToken(),
-                    addAccountRequest.getInstitution().getName(),
-                    addAccountRequest.getInstitution().getInstitutionId(),
-                    userId);
+            accountRepository.saveAccountItemFromAddAccountRequest(addAccountRequest, response.body().getItemId(), response.body().getAccessToken(), userId);
             //TODO: return nice message
         }
     }

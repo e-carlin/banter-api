@@ -2,6 +2,7 @@ package com.banter.api.model.request.addAccount;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import lombok.Data;
 import lombok.ToString;
 
 import javax.validation.Valid;
@@ -37,6 +38,7 @@ import java.util.List;
  }
  */
 
+@Data
 @ToString
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class AddAccountRequest {

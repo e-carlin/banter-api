@@ -2,6 +2,7 @@ package com.banter.api.repository.account;
 
 import com.banter.api.model.item.AccountItem;
 import com.banter.api.model.item.attribute.InstitutionAttribute;
+import com.banter.api.model.request.addAccount.AddAccountRequest;
 import com.banter.api.model.request.addAccount.AddAccountRequestAccount;
 import com.banter.api.requestexceptions.customExceptions.PlaidGetAccountBalanceException;
 import com.banter.api.service.InstitutionService;
@@ -62,12 +63,7 @@ public class AccountRepositoryImpl implements AccountRepository {
             }
     }
 
-    public AccountItem saveAccountItemFromAddAccountRequest(List<AddAccountRequestAccount> requestAccounts,
-                                                            String itemId,
-                                                            String accessToken,
-                                                            String institutionName,
-                                                            String institutionId,
-                                                            String userId) throws ExecutionException, InterruptedException, PlaidGetAccountBalanceException {
+    public AccountItem saveAccountItemFromAddAccountRequest(AddAccountRequest addAccountRequest, String itemid, String accessToken, String userId) throws ExecutionException, InterruptedException, PlaidGetAccountBalanceException {
         this.logger.debug("Saving account item from add account request");
 
         //TODO: First, check if they already have an existing AccountItem. If so get it,
@@ -82,7 +78,7 @@ public class AccountRepositoryImpl implements AccountRepository {
 
             List<String> existingInstitutionIds = accountItem.getInstitutions().stream().map(existingInstitutionId -> existingInstitutionId.getInstitutionId()).collect(Collectors.toList());
             //If this institution is already in the account item. Then no need to add it again. Just update the balances
-            if (existingInstitutionIds.contains(institutionId)) {
+            if (existingInstitutionIds.contains(addAccountRequest.getInstitution().getInstitutionId())) {
                 logger.debug("This user has added this account before. Just going to update their balances. TODO: This needs to be implemented");
                 //TODO: Update balances
                 return accountItem;
@@ -95,7 +91,7 @@ public class AccountRepositoryImpl implements AccountRepository {
 
         //Add the institution attribute to the account item (either newly created or existing account item)
         logger.debug("This is a new institution for this user. Creating a new InstitutionAttribute");
-        InstitutionAttribute institutionAttribute = institutionService.createInstitutionAttribute(itemId, institutionName, institutionId, accessToken);
+        InstitutionAttribute institutionAttribute = institutionService.createInstitutionAttribute(itemid, addAccountRequest.getInstitution().getName(), addAccountRequest.getInstitution().getInstitutionId(), accessToken);
         accountItem.addInstitutionAttribute(institutionAttribute);
 
         Set<ConstraintViolation<AccountItem>> errors = accountItem.validate();
