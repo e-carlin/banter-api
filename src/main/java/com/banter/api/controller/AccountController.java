@@ -87,21 +87,4 @@ public class AccountController {
         }
             return "{'status' : 'success'}"; //TODO: something better
     }
-
-    @GetMapping("/accounts")
-    @ResponseStatus(HttpStatus.OK)
-    public @ResponseBody
-    AccountItem getAccounts() throws NoAccountItemException, AddDuplicateInstitutionException, ExecutionException, InterruptedException {
-        logger.info("GET /accounts called");
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        logger.debug(String.format("Looking up accounts for userId: %s", userId));
-
-        Optional<AccountItem> accountItemOptional = accountRepository.findById(userId);
-        if (accountItemOptional.isPresent()) {
-            return accountItemOptional.get();
-        } else { //This user doesn't have an account item
-            logger.warn(String.format("No accounts found for userId %s.", userId));
-            throw new NoAccountItemException("No accounts found");
-        }
-    }
 }
