@@ -25,7 +25,7 @@ public class FirebaseIdTokenProcessor {
     public FirebaseIdTokenProcessor() {}
 
     public Authentication getAuthentication(HttpServletRequest request) throws Exception {
-        logger.debug("In FirebaseIdTokenPROCESSOR doing getAuthentication()");
+        logger.debug("In AWSCogntioAccessTokenPROCESSOR doing getAuthentication()");
 
         String idToken = request.getHeader("Authorization");
         logger.debug(String.format("Authorization header is: %s", idToken));
