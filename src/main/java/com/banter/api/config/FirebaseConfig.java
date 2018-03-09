@@ -18,7 +18,7 @@ public class FirebaseConfig {
     public FirebaseConfig() throws IOException {
         FileInputStream firebaseServiceAccount =
                 //TODO: can't use a file name like this. The JSON file should NOT be checked into src control
-                new FileInputStream("/home/e-carlin/banter/banter-api/src/main/java/com/banter/api/config/banter-firebase-admin.json");
+                new FileInputStream("C:\\Users\\evan.carlin\\Documents\\personal\\banter\\banter-api-2\\src\\main\\java\\com\\banter\\api\\config\\banter-firebase-admin.json");
 
         FirebaseOptions firebaseOptions = new FirebaseOptions.Builder()
                 .setCredentials(GoogleCredentials.fromStream(firebaseServiceAccount))

@@ -1,14 +1,11 @@
 package com.banter.api.controller;
 
-import com.banter.api.model.item.AccountItem;
-import com.banter.api.model.item.InstitutionTokenItem;
+import com.banter.api.model.document.InstitutionTokenItem;
 import com.banter.api.model.request.addAccount.AddAccountRequest;
 import com.banter.api.repository.account.AccountRepository;
 import com.banter.api.repository.institutionToken.InstitutionTokenRepository;
 import com.banter.api.requestexceptions.customExceptions.*;
 import com.banter.api.service.PlaidClientService;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.plaid.client.response.ItemPublicTokenExchangeResponse;
 import lombok.ToString;
 import org.slf4j.Logger;
@@ -21,7 +18,6 @@ import retrofit2.Response;
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -66,24 +62,22 @@ public class AccountController {
             logger.debug("The user tried to add a duplicate institution. InstitutionName: " + addAccountRequest.getInstitutionName() + " insId:" + addAccountRequest.getInstitutionId());
             throw new AddDuplicateInstitutionException("User has already added institution: " + addAccountRequest.getInstitutionName());
         } else {
-//            //TODO: Maybe move this to async. Maybe not incase we want to alert the user and have them retry. Although, we could still alert them asynchronously
+            logger.debug("This is a new institution");
+           //TODO: Maybe move this to async. Maybe not incase we want to alert the user and have them retry. Although, we could still alert them asynchronously
             Response<ItemPublicTokenExchangeResponse> response = plaidClientService.exchangePublicToken(addAccountRequest.getPublicToken());
-//
-//            //If the itemId (hash key) is already found this just updates the existing item. It will create a new item
-//            // if the itemId isn't already in the table
-//            //TODO: Remove hard coded email
+
             InstitutionTokenItem institutionTokenItem = new InstitutionTokenItem(response.body().getItemId(),
                     response.body().getAccessToken(),
                     userId);
             institutionTokenRepository.save(institutionTokenItem);
-//
-//            //TODO: Remove hard coded email
-            accountRepository.saveAccountItemFromAddAccountRequest(
-                    response.body().getItemId(),
-                    response.body().getAccessToken(),
-                    addAccountRequest.getInstitutionName(),
-                    addAccountRequest.getInstitutionId(),
-                    userId);
+////
+////            //TODO: Remove hard coded email
+//            accountRepository.saveAccountItemFromAddAccountRequest(
+//                    response.body().getItemId(),
+//                    response.body().getAccessToken(),
+//                    addAccountRequest.getInstitutionName(),
+//                    addAccountRequest.getInstitutionId(),
+//                    userId);
         }
             return "{'status' : 'success'}"; //TODO: something better
     }

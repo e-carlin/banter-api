@@ -1,9 +1,9 @@
 package com.banter.api.service;
 
-import com.banter.api.model.item.AccountItem;
-import com.banter.api.model.item.attribute.AccountAttribute;
-import com.banter.api.model.item.attribute.AccountBalancesAttribute;
-import com.banter.api.model.item.attribute.InstitutionAttribute;
+import com.banter.api.model.document.AccountsDocument;
+import com.banter.api.model.document.attribute.AccountAttribute;
+import com.banter.api.model.document.attribute.AccountBalancesAttribute;
+import com.banter.api.model.document.attribute.InstitutionAttribute;
 import com.banter.api.repository.account.AccountRepository;
 import com.banter.api.requestexceptions.customExceptions.PlaidGetAccountBalanceException;
 import com.plaid.client.response.Account;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import retrofit2.Response;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class InstitutionService {
@@ -25,16 +24,16 @@ public class InstitutionService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 //    public boolean userHasInstitution(String userSub, String insId) {
-////        Optional<AccountItem> accountItemOptional = accountRepository.findById(userSub);
+////        Optional<AccountsDocument> accountItemOptional = accountRepository.findById(userSub);
 ////        if(accountItemOptional.isPresent()) {
-////            AccountItem accountItem = accountItemOptional.get();
+////            AccountsDocument accountItem = accountItemOptional.get();
 ////            return accountItemContainsInstitutionId(insId, accountItem);
 ////        }
 ////        return false;
 ////    }
 
-    private boolean accountItemContainsInstitutionId(String insId, AccountItem accountItem) {
-        List<InstitutionAttribute> institutions = accountItem.getInstitutions();
+    private boolean accountItemContainsInstitutionId(String insId, AccountsDocument accountsDocument) {
+        List<InstitutionAttribute> institutions = accountsDocument.getInstitutions();
         for(InstitutionAttribute institutionAttribute : institutions) {
             if(institutionAttribute.getInstitutionId().equals(insId)) {
                 return true;

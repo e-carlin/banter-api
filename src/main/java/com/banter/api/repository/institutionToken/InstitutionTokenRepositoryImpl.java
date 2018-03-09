@@ -1,6 +1,6 @@
 package com.banter.api.repository.institutionToken;
 
-import com.banter.api.model.item.InstitutionTokenItem;
+import com.banter.api.model.document.InstitutionTokenItem;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;

@@ -1,4 +1,4 @@
-package com.banter.api.model.item;
+package com.banter.api.model.document;
 
 import lombok.Data;
 import lombok.ToString;

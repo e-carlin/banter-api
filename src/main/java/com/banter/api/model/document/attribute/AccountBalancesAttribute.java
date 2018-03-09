@@ -1,4 +1,4 @@
-package com.banter.api.model.item.attribute;
+package com.banter.api.model.document.attribute;
 
 import lombok.Data;
 import lombok.ToString;

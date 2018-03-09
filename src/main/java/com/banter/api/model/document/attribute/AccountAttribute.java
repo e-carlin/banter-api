@@ -1,17 +1,12 @@
-package com.banter.api.model.item.attribute;
+package com.banter.api.model.document.attribute;
 
 import lombok.Data;
 import lombok.ToString;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.validation.ConstraintViolation;
 import javax.validation.Valid;
-import javax.validation.Validation;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Set;
 
 @Data
 @ToString

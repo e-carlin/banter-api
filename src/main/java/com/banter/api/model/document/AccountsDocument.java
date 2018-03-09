@@ -1,6 +1,7 @@
-package com.banter.api.model.item;
+package com.banter.api.model.document;
 
-import com.banter.api.model.item.attribute.InstitutionAttribute;
+import com.banter.api.model.document.attribute.InstitutionAttribute;
+import com.google.cloud.firestore.FieldValue;
 import lombok.Data;
 import lombok.ToString;
 import org.springframework.stereotype.Component;
@@ -11,18 +12,20 @@ import javax.validation.Validation;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 @Data
 @ToString
 @Component
-public class AccountItem {
+public class AccountsDocument {
 
     @NotEmpty private String userId;
+    private Date createdAt;
     @NotNull @Valid private List<InstitutionAttribute> institutions;
 
-    public AccountItem() {
+    public AccountsDocument() {
         this.institutions = new ArrayList<>();
     }
 
@@ -34,7 +37,7 @@ public class AccountItem {
         this.institutions.add(institutionAttribute);
     }
 
-    public Set<ConstraintViolation<AccountItem>> validate() {
+    public Set<ConstraintViolation<AccountsDocument>> validate() {
         return Validation.buildDefaultValidatorFactory().getValidator().validate(this);
     }
 }
