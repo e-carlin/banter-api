@@ -107,6 +107,15 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return buildResponseEntity(apiError);
     }
 
+    @ExceptionHandler(UnsupportedWebhookTypeException.class)
+    protected ResponseEntity<Object> handleunsupportedWebhookTypeException (UnsupportedWebhookTypeException ex) {
+        ApiError apiError = new ApiError(INTERNAL_SERVER_ERROR); //TODO: Change to BAD_REQUEST once we support all valid types
+        apiError.setMessage("Error processing webhook");
+        apiError.setDebugMessage(ex.getLocalizedMessage());
+        return buildResponseEntity(apiError);
+    }
+
+
     /**
      * Handles PlaidExchangePublicTokenException. Thrown when there is a problem exchanging
      * the public token with Plaid

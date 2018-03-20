@@ -23,16 +23,8 @@ public class InstitutionService {
     @Autowired private AccountRepository accountRepository;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-//    public boolean userHasInstitution(String userSub, String insId) {
-////        Optional<AccountsDocument> accountItemOptional = accountRepository.findById(userSub);
-////        if(accountItemOptional.isPresent()) {
-////            AccountsDocument accountItem = accountItemOptional.get();
-////            return accountItemContainsInstitutionId(insId, accountItem);
-////        }
-////        return false;
-////    }
 
-    private boolean accountItemContainsInstitutionId(String insId, AccountsDocument accountsDocument) {
+    private boolean accountsDocumentContainsInstitutionId(String insId, AccountsDocument accountsDocument) {
         List<InstitutionAttribute> institutions = accountsDocument.getInstitutions();
         for(InstitutionAttribute institutionAttribute : institutions) {
             if(institutionAttribute.getInstitutionId().equals(insId)) {

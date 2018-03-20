@@ -4,6 +4,7 @@ import com.banter.api.security.FirebaseIdTokenProcessor;
 import com.banter.api.security.FirebaseIdTokenAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -24,11 +25,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 csrf().disable(). //TODO: What is CSRF? should we add CORS too?
                 sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS). //Makes every session stateless. Good for REST
                 and().
-                authorizeRequests().anyRequest().authenticated(). //All requests need to be authenticated
+                authorizeRequests().
+                antMatchers("/plaid/webhook").permitAll(). //TODO: Remove hard coding
+                anyRequest().authenticated().
                 and().
-                anonymous().disable(). //No "anonymous" authentication. AKA everyone must be authenticated
-                addFilterBefore(new FirebaseIdTokenAuthenticationFilter(firebaseIdTokenProcessor()), BasicAuthenticationFilter.class); //This adds our FirebaseIdTokenAuthenticationFilter before the BasicAuthenticationFilter
-        //Don't worry about the BasicAuthenticationFilter, we aren't using basicAuthentication. This method just needs a filter to put ours before and that is one of the filters we can put ours before.
+                addFilterBefore(new FirebaseIdTokenAuthenticationFilter(firebaseIdTokenProcessor()), BasicAuthenticationFilter.class). //This adds our FirebaseIdTokenAuthenticationFilter before the BasicAuthenticationFilter
+                //Don't worry about the BasicAuthenticationFilter, we aren't using basicAuthentication. This method just needs a filter to put ours before and that is one of the filters we can put ours before.
+                // this disables session creation on Spring Security
+                        sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
     @Bean

@@ -1,7 +1,7 @@
 package com.banter.api.controller;
 
-import com.banter.api.model.document.InstitutionTokenItem;
-import com.banter.api.model.request.addAccount.AddAccountRequest;
+import com.banter.api.model.document.InstitutionTokenDocument;
+import com.banter.api.model.request.AddAccountRequest;
 import com.banter.api.repository.account.AccountRepository;
 import com.banter.api.repository.institutionToken.InstitutionTokenRepository;
 import com.banter.api.requestexceptions.customExceptions.*;
@@ -52,6 +52,9 @@ public class AccountController {
             PlaidExchangePublicTokenException,
             PlaidGetAccountBalanceException,
             AddDuplicateInstitutionException, ExecutionException, InterruptedException {
+
+        //TODO: We need to walk through all of the code in hear and the paths it leads to and verify it is good to go
+
         this.logger.info("POST /accounts/add called");
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         logger.debug(String.format("**** adding accounts for user %s", userId));
@@ -66,10 +69,10 @@ public class AccountController {
            //TODO: Maybe move this to async. Maybe not incase we want to alert the user and have them retry. Although, we could still alert them asynchronously
             Response<ItemPublicTokenExchangeResponse> response = plaidClientService.exchangePublicToken(addAccountRequest.getPublicToken());
 
-            InstitutionTokenItem institutionTokenItem = new InstitutionTokenItem(response.body().getItemId(),
+            InstitutionTokenDocument institutionTokenDocument = new InstitutionTokenDocument(response.body().getItemId(),
                     response.body().getAccessToken(),
                     userId);
-            institutionTokenRepository.save(institutionTokenItem);
+            institutionTokenRepository.save(institutionTokenDocument);
 ////
 ////            //TODO: Remove hard coded email
 //            accountRepository.saveAccountItemFromAddAccountRequest(

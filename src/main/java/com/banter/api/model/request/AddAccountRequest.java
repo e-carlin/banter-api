@@ -1,4 +1,4 @@
-package com.banter.api.model.request.addAccount;
+package com.banter.api.model.request;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -57,5 +57,6 @@ public class AddAccountRequest {
     public String getPublicToken() { return this.publicToken; }
     public void setPublicToken(String publicToken) { this.publicToken = publicToken;}
 }
+
 
 
