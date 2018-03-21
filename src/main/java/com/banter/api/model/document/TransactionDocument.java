@@ -16,6 +16,8 @@ import java.util.List;
 public class TransactionDocument {
 
     @NotNull
+    private String userId;
+    @NotNull
     private String accountId;
     @NotNull
     private Double amount; //Todo: better type than double??
@@ -46,8 +48,9 @@ public class TransactionDocument {
     public TransactionDocument() {
     }
 
-    public TransactionDocument(TransactionsGetResponse.Transaction transaction){
+    public TransactionDocument(TransactionsGetResponse.Transaction transaction, String userId) {
 
+        this.userId = userId;
         this.accountId = transaction.getAccountId();
         this.amount = transaction.getAmount();
         this.categories = transaction.getCategory();

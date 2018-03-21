@@ -102,12 +102,22 @@ public class PlaidClientService {
     }
 
     public List<TransactionDocument> getTransactions(String itemId, LocalDate startDate, LocalDate endDate) throws PlaidGetTransactionsException {
+        logger.debug("Getting transactions");
+        //Ok, we want to get some transactions
         try {
+            //First, go get the institutionTokenDocument so we can get the acessToken and userId associated with this itemId
             Optional<InstitutionTokenDocument> institutionTokenDocument = institutionTokenRepository.findByItemId(itemId);
-            if (!institutionTokenDocument.isPresent()) {
+            if (!institutionTokenDocument.isPresent()) { //The result set was empty
+                logger.error("There was no institutionTokenDocument for itemId: "+itemId);
                 throw new PlaidGetTransactionsException(String.format("There was no institutionTokenDocument with itemId: %s", itemId));
             } else {
+                logger.debug("Found the institutionTokenDocument associated with itemId: "+itemId+" Document: "+institutionTokenDocument);
+                //Ok, we got a valid institutionTokenDocument. Get the accessToken and userId from it
                 String accessToken = institutionTokenDocument.get().getAccessToken();
+                String userId = institutionTokenDocument.get().getUserId();
+
+                //With the accessToken we can go grab the list of transactions from Plaid
+                logger.debug("Calling Plaid API to get Transactions");
                 Response<TransactionsGetResponse> response = plaidClient.service().transactionsGet(
                         new TransactionsGetRequest(
                                 accessToken,
@@ -115,14 +125,19 @@ public class PlaidClientService {
                                 java.sql.Date.valueOf(endDate)))
                         .execute();
 
-                if (response.errorBody() != null) {
+                if (response.errorBody() != null) { //Plaid errored out
+                    logger.error("There was an error returned from Plaid: "+response.errorBody().string());
                     throw new PlaidGetTransactionsException("Error response from Plaid: " + response.errorBody().string());
                 } else {
+                    //Success! We got some transactions back from plaid
+                    logger.debug("Success getting transactions from Plaid API");
                     List<TransactionsGetResponse.Transaction> transactionsResponse = response.body().getTransactions();
+                    logger.debug("We received "+transactionsResponse.size()+" transactions");
                     List<TransactionDocument> transactionDocuments = new ArrayList<>();
                     for (TransactionsGetResponse.Transaction transaction : transactionsResponse) {
-                        transactionDocuments.add(new TransactionDocument(transaction));
+                        transactionDocuments.add(new TransactionDocument(transaction, userId));
                     }
+                    logger.debug("We turned those into "+transactionDocuments.size()+" transactionDocuments");
                     return transactionDocuments;
                 }
             }

@@ -26,8 +26,10 @@ public class PlaidWebhookService {
     public PlaidWebhookService() {}
 
     public void processWebhook(PlaidWebhookRequest request)  throws UnsupportedWebhookTypeException {
+        logger.debug("Processing webhook request");
         switch (request.getWebhookType()) {
             case("TRANSACTIONS"): //TODO: Remove hardcode
+                logger.debug("Webhook is of type TRANSACTIONS");
                 this.processTransactionsWebhook(request);
                 break;
             default:
@@ -40,11 +42,14 @@ public class PlaidWebhookService {
         try {
             switch (request.getWebhookCode()) {
                 case(INITIAL_UPDATE_WEBHOOK_CODE):
+                    logger.debug("Webhook code is "+INITIAL_UPDATE_WEBHOOK_CODE);
                     //Initial update is 30 days. So get transaction from now+2 days to now-45 days. That will cover all with a buffer
                     LocalDate endDate = LocalDate.now().plus(Period.ofDays(2));
-                    LocalDate  startDate = endDate.minus(Period.ofDays(47));
+                    LocalDate  startDate = endDate.minus(Period.ofDays(45));
+                    logger.debug(String.format("Getting transactions from %s to %s ", startDate, endDate));
                     List<TransactionDocument> transactionDocuments = plaidClientService.getTransactions(itemId, startDate, endDate);
                     transactionDocumentRepository.addAll(transactionDocuments);
+                    logger.debug("Success processing "+INITIAL_UPDATE_WEBHOOK_CODE+" transaction webhook");
                     break;
 
                     //TODO: Implement the other codes
@@ -53,8 +58,6 @@ public class PlaidWebhookService {
                     logger.error(String.format("Unrecognized transaction webhook code",request.getWebhookCode()));
                     //TODO: should we do something?
             }
-
-
         } catch (PlaidGetTransactionsException e) {
             logger.error("There was an error getting transactions from Plaid: "+e.getMessage());
             e.printStackTrace();
