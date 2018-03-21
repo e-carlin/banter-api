@@ -1,9 +1,6 @@
 package com.banter.api.service;
 
 import com.banter.api.model.document.AccountsDocument;
-import com.banter.api.model.document.attribute.AccountAttribute;
-import com.banter.api.model.document.attribute.AccountBalancesAttribute;
-import com.banter.api.model.document.attribute.InstitutionAttribute;
 import com.banter.api.repository.account.AccountRepository;
 import com.banter.api.requestexceptions.customExceptions.PlaidGetAccountBalanceException;
 import com.plaid.client.response.Account;
@@ -25,8 +22,8 @@ public class InstitutionService {
 
 
     private boolean accountsDocumentContainsInstitutionId(String insId, AccountsDocument accountsDocument) {
-        List<InstitutionAttribute> institutions = accountsDocument.getInstitutions();
-        for(InstitutionAttribute institutionAttribute : institutions) {
+        List<AccountsDocument.Institution> institutions = accountsDocument.getInstitutions();
+        for(AccountsDocument.Institution institutionAttribute : institutions) {
             if(institutionAttribute.getInstitutionId().equals(insId)) {
                 return true;
             }
@@ -34,32 +31,25 @@ public class InstitutionService {
         return false;
     }
 
-    public InstitutionAttribute createInstitutionAttribute(String itemId, String institutionName, String institutionId, String accessToken) throws PlaidGetAccountBalanceException {
-        InstitutionAttribute institutionAttribute = new InstitutionAttribute(
+    public AccountsDocument.Institution createInstitution(String itemId, String institutionName, String institutionId, String accessToken) throws PlaidGetAccountBalanceException {
+        AccountsDocument.Institution institution = new AccountsDocument.Institution(
                 itemId,
                 institutionName,
                 institutionId);
 
-        //TODO: we should wrap this in our own object
         Response<AccountsBalanceGetResponse> response = this.plaidClientService.getAccountBalance(accessToken);
         List<Account> accounts = response.body().getAccounts();
-        for (Account account : accounts) {
-            AccountBalancesAttribute accountBalancesAttribute = new AccountBalancesAttribute(
-                    account.getBalances().getCurrent(),
-                    account.getBalances().getAvailable(),
-                    account.getBalances().getLimit());
+        for (Account accountFromPlaid : accounts) {
+            AccountsDocument.Institution.Account.Balances accountBalancesAttribute = new AccountsDocument.Institution.Account.Balances(accountFromPlaid.getBalances());
 
-            AccountAttribute accountAttribute = new AccountAttribute(
-                    account.getAccountId(),
-                    account.getName(),
-                    account.getType(),
-                    account.getSubtype(),
+            AccountsDocument.Institution.Account account = new AccountsDocument.Institution.Account(
+                    accountFromPlaid,
                     accountBalancesAttribute);
 
-            this.logger.debug("Account attribute: " + accountAttribute);
-            institutionAttribute.addAccountAttribute(accountAttribute);
+            this.logger.debug("Account attribute: " + account);
+            institution.addAccount(account);
         }
 
-        return institutionAttribute;
+        return institution;
     }
 }

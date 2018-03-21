@@ -3,7 +3,7 @@ package com.banter.api.service;
 import com.banter.api.model.document.InstitutionTokenDocument;
 import com.banter.api.model.document.TransactionDocument;
 import com.banter.api.repository.institutionToken.InstitutionTokenRepository;
-import com.banter.api.requestexceptions.customExceptions.FirestoreQueryException;
+import com.banter.api.requestexceptions.customExceptions.FirestoreException;
 import com.banter.api.requestexceptions.customExceptions.PlaidExchangePublicTokenException;
 import com.banter.api.requestexceptions.customExceptions.PlaidGetAccountBalanceException;
 import com.banter.api.requestexceptions.customExceptions.PlaidGetTransactionsException;
@@ -22,11 +22,8 @@ import org.springframework.stereotype.Service;
 import retrofit2.Response;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -125,6 +122,7 @@ public class PlaidClientService {
                                 java.sql.Date.valueOf(endDate)))
                         .execute();
 
+                //TODO: Change to response.isSuccessful()
                 if (response.errorBody() != null) { //Plaid errored out
                     logger.error("There was an error returned from Plaid: "+response.errorBody().string());
                     throw new PlaidGetTransactionsException("Error response from Plaid: " + response.errorBody().string());
@@ -141,7 +139,7 @@ public class PlaidClientService {
                     return transactionDocuments;
                 }
             }
-        } catch (FirestoreQueryException e) {
+        } catch (FirestoreException e) {
             logger.error("There was an error retrieving the institutionTokenDocument from Firestore: " + e.getLocalizedMessage());
             e.printStackTrace();
             throw new PlaidGetTransactionsException("There was an error getting transactions. Please try again.");

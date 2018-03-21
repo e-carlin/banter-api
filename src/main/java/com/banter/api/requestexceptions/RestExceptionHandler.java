@@ -157,6 +157,17 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return buildResponseEntity(apiError);
     }
 
+    @ExceptionHandler(FirestoreException.class)
+    protected ResponseEntity<Object> firestoreQueryException (FirestoreException ex) {
+        final Logger logger = LoggerFactory.getLogger(this.getClass());
+        ApiError apiError = new ApiError(INTERNAL_SERVER_ERROR);
+        apiError.setMessage("There was an error querying the database. Please try again.");
+        apiError.setDebugMessage(ex.getLocalizedMessage());
+        return buildResponseEntity(apiError);
+    }
+
+
+
 
     /**
      * Handle HttpMessageNotReadableException. Happens when request JSON is malformed.

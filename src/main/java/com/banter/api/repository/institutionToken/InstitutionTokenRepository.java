@@ -1,14 +1,14 @@
 package com.banter.api.repository.institutionToken;
 
 import com.banter.api.model.document.InstitutionTokenDocument;
-import com.banter.api.requestexceptions.customExceptions.FirestoreQueryException;
+import com.banter.api.requestexceptions.customExceptions.FirestoreException;
 
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public interface InstitutionTokenRepository {
 
-    InstitutionTokenDocument save(InstitutionTokenDocument institutionTokenDocument) throws ExecutionException, InterruptedException;
+    InstitutionTokenDocument add(InstitutionTokenDocument institutionTokenDocument);
 
-    Optional<InstitutionTokenDocument> findByItemId(String itemId) throws FirestoreQueryException;
+    Optional<InstitutionTokenDocument> findByItemId(String itemId) throws FirestoreException;
 }
