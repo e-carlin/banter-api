@@ -85,7 +85,7 @@
       or a Contribution incorporated within the Work constitutes direct
       or contributory patent infringement, then any patent licenses
       granted to You under this License for that Work shall terminate
-      as of the date such litigation is filed.
+      as of the transactionDate such litigation is filed.
 
    4. Redistribution. You may reproduce and distribute copies of the
       Work or Derivative Works thereof in any medium, with or without
@@ -304,7 +304,7 @@ COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
             (or portions thereof).
 
         (c) The licenses granted in Sections 2.1(a) and (b) are effective on the
-            date Initial Developer first distributes or otherwise makes the
+            transactionDate Initial Developer first distributes or otherwise makes the
             Original Software available to a third party under the terms of this
             License.
 
@@ -337,7 +337,7 @@ COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
             combination).
 
         (c) The licenses granted in Sections 2.2(a) and 2.2(b) are effective on
-            the date Contributor first distributes or otherwise makes the
+            the transactionDate Contributor first distributes or otherwise makes the
             Modifications available to a third party.
 
         (d) Notwithstanding Section 2.2(b) above, no patent license is granted:

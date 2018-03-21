@@ -22,7 +22,10 @@ import org.springframework.stereotype.Service;
 import retrofit2.Response;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -98,31 +101,29 @@ public class PlaidClientService {
         }
     }
 
-    //TODO: Switch to proper signature
-    public void getTransactions(String itemId, Date startDate, Date endDate) throws PlaidGetTransactionsException {
-//    public List<TransactionDocument> getTransactions(String itemId, Date startDate, Date endDate) throws PlaidGetTransactionsException {
-
+    public List<TransactionDocument> getTransactions(String itemId, LocalDate startDate, LocalDate endDate) throws PlaidGetTransactionsException {
         try {
             Optional<InstitutionTokenDocument> institutionTokenDocument = institutionTokenRepository.findByItemId(itemId);
             if (!institutionTokenDocument.isPresent()) {
                 throw new PlaidGetTransactionsException(String.format("There was no institutionTokenDocument with itemId: %s", itemId));
             } else {
                 String accessToken = institutionTokenDocument.get().getAccessToken();
-                Response<TransactionsGetResponse> response =  plaidClient.service().transactionsGet(
+                Response<TransactionsGetResponse> response = plaidClient.service().transactionsGet(
                         new TransactionsGetRequest(
                                 accessToken,
-                                startDate,
-                                endDate))
+                                java.sql.Date.valueOf(startDate),
+                                java.sql.Date.valueOf(endDate)))
                         .execute();
 
-                //TODO: Convert response into a list of transactionDocuments
-                logger.warn("********************** RESPONSE **************************");
-                if(response.errorBody() != null) {
-                    throw new PlaidGetTransactionsException("Error response from Plaid: "+response.errorBody().string());
-                }
-                else {
-                    List<TransactionsGetResponse.Transaction> transactions = response.body().getTransactions();
-                    TransactionDocument mydoc = (TransactionDocument) transactions.get(0);
+                if (response.errorBody() != null) {
+                    throw new PlaidGetTransactionsException("Error response from Plaid: " + response.errorBody().string());
+                } else {
+                    List<TransactionsGetResponse.Transaction> transactionsResponse = response.body().getTransactions();
+                    List<TransactionDocument> transactionDocuments = new ArrayList<>();
+                    for (TransactionsGetResponse.Transaction transaction : transactionsResponse) {
+                        transactionDocuments.add(new TransactionDocument(transaction));
+                    }
+                    return transactionDocuments;
                 }
             }
         } catch (FirestoreQueryException e) {
