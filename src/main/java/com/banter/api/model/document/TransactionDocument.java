@@ -40,7 +40,6 @@ public class TransactionDocument {
     @NotNull
     private String transactionType; //TODO: enum?
     private String accountOwner;
-    @NotNull
     @ServerTimestamp
     private Date createdAt; //Recommended to be stored as a long https://stackoverflow.com/questions/48473473/save-object-of-localdate-java-time-in-firebase-database
 

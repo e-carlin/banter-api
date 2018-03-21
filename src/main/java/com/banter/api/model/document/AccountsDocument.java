@@ -23,7 +23,6 @@ public class AccountsDocument {
 
     @NotEmpty
     private String userId;
-    @NotNull
     @ServerTimestamp
     private Date createdAt;
     @NotNull

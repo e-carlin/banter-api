@@ -22,7 +22,6 @@ public class InstitutionTokenDocument {
     private String accessToken;
     @NotEmpty
     private String userId;
-    @NotNull
     @ServerTimestamp
     private Date createdAt;
 

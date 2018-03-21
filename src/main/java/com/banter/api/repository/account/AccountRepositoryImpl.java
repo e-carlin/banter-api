@@ -66,7 +66,7 @@ public class AccountRepositoryImpl implements AccountRepository {
             accountsDocument.setCreatedAt(null); //Set to null so the db server adds a new updated createdAt timestamp. If we didn't set it to null this new document would be save with the createdAt timestamp of the old document
         }
         //Add the new institution to the accountsDocument
-        AccountsDocument.Institution institution = institutionService.createInstitution(institutionTokenDocument.getItemId(), request.getInstitutionName(), request.getInstitutionName(), institutionTokenDocument.getAccessToken());
+        AccountsDocument.Institution institution = institutionService.createInstitution(institutionTokenDocument.getItemId(), request.getInstitutionName(), request.getInstitutionId(), institutionTokenDocument.getAccessToken());
         accountsDocument.addInstitutionAttribute(institution);
 
         //Validate everything looks good
@@ -114,7 +114,7 @@ public class AccountRepositoryImpl implements AccountRepository {
     private Optional<AccountsDocument> getMostRecentAccountsDocument(String userId) throws FirestoreException {
         try {
             CollectionReference accounts = db.collection(ACCOUNT_COLLECTION_REF);
-            Query query = accounts.whereEqualTo("userId", userId).orderBy("createdAt").limit(1);
+            Query query = accounts.whereEqualTo("userId", userId).orderBy("createdAt", Query.Direction.DESCENDING).limit(1);
             ApiFuture<QuerySnapshot> querySnapshot = query.get();
             List<QueryDocumentSnapshot> documentSnapshots = querySnapshot.get().getDocuments();
             if (documentSnapshots.size() < 1) {
@@ -125,10 +125,12 @@ public class AccountRepositoryImpl implements AccountRepository {
             }
         }catch (InterruptedException e) {
             logger.error("Firestore interrupted exception caught: "+e.getLocalizedMessage());
+            e.printStackTrace();
             throw new FirestoreException("There was an exception thrown while querying the database");
 
         } catch (ExecutionException e) {
             logger.error("Firestore execution exception caught: "+e.getLocalizedMessage());
+            e.printStackTrace();
             throw new FirestoreException("There was an exception thrown while querying the database");
         }
 
