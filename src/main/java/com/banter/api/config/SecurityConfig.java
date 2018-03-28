@@ -26,7 +26,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS). //Makes every session stateless. Good for REST
                 and().
                 authorizeRequests().
-                antMatchers("/plaid/webhook").permitAll(). //TODO: Remove hard coding
+                antMatchers("/plaid/webhook", "/dialogflow/webhook").
+                permitAll(). //TODO: Remove hard coding
                 anyRequest().authenticated().
                 and().
                 addFilterBefore(new FirebaseIdTokenAuthenticationFilter(firebaseIdTokenProcessor()), BasicAuthenticationFilter.class). //This adds our FirebaseIdTokenAuthenticationFilter before the BasicAuthenticationFilter

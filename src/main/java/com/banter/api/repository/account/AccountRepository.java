@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public interface AccountRepository {
-    Optional<AccountsDocument> findById(String userId) throws ExecutionException, InterruptedException;
+    Optional<AccountsDocument.Institution.Account> findAccountByName(String name, String userId) throws FirestoreException;
     boolean userHasInstitution(String userId, String institutionId) throws FirestoreException;
     AccountsDocument add(AddAccountRequest addAccountRequest, InstitutionTokenDocument institutionTokenDocument) throws PlaidGetAccountBalanceException, FirestoreException;
     AccountsDocument add(AccountsDocument accountsDocument) throws ExecutionException, InterruptedException;

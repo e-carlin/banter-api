@@ -9,6 +9,7 @@ import com.banter.api.service.InstitutionService;
 import com.banter.api.service.PlaidClientService;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
+import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ public class AccountRepositoryImpl implements AccountRepository {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static final String ACCOUNT_COLLECTION_REF = "accounts";
+    private static final double NAME_MATCH_MIN_PERCENT = 0.5; //TODO: Need to tune this number
 
     @Autowired
     private PlaidClientService plaidClientService;
@@ -82,19 +84,6 @@ public class AccountRepositoryImpl implements AccountRepository {
     }
 
     @Override
-    public Optional<AccountsDocument> findById(String userId) throws ExecutionException, InterruptedException {
-        DocumentReference docRef = db.collection(ACCOUNT_COLLECTION_REF).document(userId);
-        ApiFuture<DocumentSnapshot> future = docRef.get();
-        DocumentSnapshot document = future.get();
-        if (document.exists()) {
-            return Optional.of(document.toObject(AccountsDocument.class));
-        } else {
-            logger.debug("No document found");
-            return Optional.empty();
-        }
-    }
-
-    @Override
     public boolean userHasInstitution(String userId, String institutionId) throws FirestoreException {
             Optional<AccountsDocument> accountsDocument =  getMostRecentAccountsDocument(userId);
             if (!accountsDocument.isPresent()) {
@@ -134,6 +123,42 @@ public class AccountRepositoryImpl implements AccountRepository {
             throw new FirestoreException("There was an exception thrown while querying the database");
         }
 
+    }
+
+    //TODO: Test
+    @Override
+    public Optional<AccountsDocument.Institution.Account> findAccountByName(String nameOfAccountToFind, String userId) throws FirestoreException {
+        Optional<AccountsDocument> accountsDocument = getMostRecentAccountsDocument(userId);
+        if(!accountsDocument.isPresent()) {
+            return Optional.empty();
+        }
+        else {
+            AccountsDocument.Institution.Account closestMatchingAccount = null;
+            Double closestMatchingPercent = 0.0;
+            for(AccountsDocument.Institution institution : accountsDocument.get().getInstitutions()) {
+                for(AccountsDocument.Institution.Account account : institution.getAccounts()) {
+                    double matchPercent = getLevenshteinDistancePercent(nameOfAccountToFind, account.getName());
+                    if(matchPercent > closestMatchingPercent) {
+                        closestMatchingPercent = matchPercent;
+                        closestMatchingAccount = account;
+                    }
+                }
+            }
+            if(closestMatchingPercent > NAME_MATCH_MIN_PERCENT) {
+                return Optional.of(closestMatchingAccount);
+            }
+            else {
+                return Optional.empty();
+            }
+        }
+    }
+
+    //TODO: Test
+    private double getLevenshteinDistancePercent(String left, String right) {
+        LevenshteinDistance levenshteinDistance = new LevenshteinDistance();
+        int distance = levenshteinDistance.apply(left, right);
+        String larger = ( left.length() > right.length()) ? left : right;
+        return (larger.length() - distance) / (double)larger.length(); //cast to double to do float instead of integer division
     }
 
 }
