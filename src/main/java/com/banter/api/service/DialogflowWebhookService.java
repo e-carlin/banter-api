@@ -1,11 +1,17 @@
 package com.banter.api.service;
 
+import com.banter.api.model.document.AccountsDocument;
 import com.banter.api.model.request.DialogflowWebhookRequest;
 import com.banter.api.model.response.DialogfloWebhookResponse;
+import com.banter.api.repository.account.AccountRepository;
+import com.banter.api.requestexceptions.customExceptions.FirestoreException;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 
 @Service
@@ -16,10 +22,13 @@ public class DialogflowWebhookService {
     private static final String ACCOUNT_TYPE_ENTITY = "accountType";
     private static final String ACCOUNT_NAME_ENTITY = "accountName";
 
+    @Autowired
+    AccountRepository accountRepository;
+
     public DialogflowWebhookService() {
     }
 
-    public DialogfloWebhookResponse processWebhook(DialogflowWebhookRequest request) {
+    public DialogfloWebhookResponse processWebhook(DialogflowWebhookRequest request) throws FirestoreException {
 
         switch (request.getQueryResult().getIntent().getDisplayName()) {
             case (GET_ACCOUNT_BALANCE_INTENT):
@@ -33,11 +42,17 @@ public class DialogflowWebhookService {
         }
     }
 
-    private DialogfloWebhookResponse getAccountBalance(String accountName, String accountType) {
+    private DialogfloWebhookResponse getAccountBalance(String accountName, String accountType) throws FirestoreException {
         logger.warn("Getting balance");
         logger.warn("AccountName: "+accountName);
         logger.warn("AccountType: "+accountType );
-        return new DialogfloWebhookResponse("You want to get balance");
+        Optional<AccountsDocument.Institution.Account> account = accountRepository.findAccountByName(accountName+accountType, "s9Wg8tCTApbRZpOTkqafFySA3uj2"); //tODO: remove hard code
+        if(account.isPresent()) {
+            return new DialogfloWebhookResponse(String.format("The balance of your %s %s account is %s", account.get().getName(), account.get().getType(), account.get().getBalances().getCurrent()));
+        }
+        else {
+            return new DialogfloWebhookResponse("We were unable to find that account");
+        }
     }
 
 }

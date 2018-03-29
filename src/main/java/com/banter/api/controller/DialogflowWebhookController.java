@@ -2,6 +2,7 @@ package com.banter.api.controller;
 
 import com.banter.api.model.request.DialogflowWebhookRequest;
 import com.banter.api.model.response.DialogfloWebhookResponse;
+import com.banter.api.requestexceptions.customExceptions.FirestoreException;
 import com.banter.api.service.DialogflowWebhookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,8 +21,9 @@ public class DialogflowWebhookController {
 
     @PostMapping("/dialogflow/webhook")
     @ResponseStatus(HttpStatus.OK)
-    public DialogfloWebhookResponse plaidWebhook(@Valid @RequestBody DialogflowWebhookRequest dialogflowWebhookRequest) {
-        System.out.println("*********************** REQUEST: "+dialogflowWebhookRequest);
+    public DialogfloWebhookResponse plaidWebhook(@Valid @RequestBody DialogflowWebhookRequest dialogflowWebhookRequest)
+            throws FirestoreException {
+        System.out.println("*********************** REQUEST: " + dialogflowWebhookRequest);
         return dialogflowWebhookService.processWebhook(dialogflowWebhookRequest);
     }
 }

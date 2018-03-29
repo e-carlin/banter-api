@@ -30,7 +30,7 @@ public class AccountRepositoryImpl implements AccountRepository {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static final String ACCOUNT_COLLECTION_REF = "accounts";
-    private static final double NAME_MATCH_MIN_PERCENT = 0.5; //TODO: Need to tune this number
+    private static final double NAME_MATCH_MIN_PERCENT = 0.0; //TODO: Need to tune this number
 
     @Autowired
     private PlaidClientService plaidClientService;
@@ -158,7 +158,7 @@ public class AccountRepositoryImpl implements AccountRepository {
         LevenshteinDistance levenshteinDistance = new LevenshteinDistance();
         int distance = levenshteinDistance.apply(left, right);
         String larger = ( left.length() > right.length()) ? left : right;
-        return (larger.length() - distance) / (double)larger.length(); //cast to double to do float instead of integer division
+        return (larger.length() - distance) / (double)larger.length(); //cast to double to do float division instead of integer
     }
 
 }
