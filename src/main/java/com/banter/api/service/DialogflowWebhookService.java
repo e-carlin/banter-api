@@ -29,10 +29,10 @@ public class DialogflowWebhookService {
     }
 
     public DialogfloWebhookResponse processWebhook(DialogflowWebhookRequest request) throws FirestoreException {
-
         switch (request.getQueryResult().getIntent().getDisplayName()) {
             case (GET_ACCOUNT_BALANCE_INTENT):
                 return getAccountBalance(
+                        request.getQueryInput().getPayload().getUserId(),
                         request.getQueryResult().getParameters().get(ACCOUNT_NAME_ENTITY),
                         request.getQueryResult().getParameters().get(ACCOUNT_TYPE_ENTITY)
                         );
@@ -42,8 +42,8 @@ public class DialogflowWebhookService {
         }
     }
 
-    private DialogfloWebhookResponse getAccountBalance(String accountName, String accountType) throws FirestoreException {
-        Optional<AccountsDocument.Institution.Account> account = accountRepository.findAccountByName(accountName+accountType, "s9Wg8tCTApbRZpOTkqafFySA3uj2"); //tODO: remove hard code
+    private DialogfloWebhookResponse getAccountBalance(String userId, String accountName, String accountType) throws FirestoreException {
+        Optional<AccountsDocument.Institution.Account> account = accountRepository.findAccountByName(accountName+accountType, userId); //tODO: remove hard code
         if(account.isPresent()) {
             return new DialogfloWebhookResponse(String.format("The balance of your %s %s account is %s", account.get().getName(), account.get().getType(), account.get().getBalances().getCurrent()));
         }

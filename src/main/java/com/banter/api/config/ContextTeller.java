@@ -22,5 +22,4 @@ public class ContextTeller implements CommandLineRunner {
         System.out.println("-------------> just checking!");
 
         System.out.println(Arrays.asList(applicationContext.getBeanDefinitionNames()));
-
     }}

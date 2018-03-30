@@ -25,8 +25,6 @@ import java.util.concurrent.ExecutionException;
 
 import static com.banter.api.util.StringUtils.getLevenshteinDistancePercent;
 
-//TODO: All of the logic in here is likely broken, please fix
-
 @Repository
 public class AccountRepositoryImpl implements AccountRepository {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
