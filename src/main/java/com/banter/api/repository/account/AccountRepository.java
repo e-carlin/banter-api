@@ -14,4 +14,5 @@ public interface AccountRepository {
     boolean userHasInstitution(String userId, String institutionId) throws FirestoreException;
     AccountsDocument add(AddAccountRequest addAccountRequest, InstitutionTokenDocument institutionTokenDocument) throws PlaidGetAccountBalanceException, FirestoreException;
     AccountsDocument add(AccountsDocument accountsDocument) throws ExecutionException, InterruptedException;
+    void updateBalances(String userId) throws FirestoreException;
 }

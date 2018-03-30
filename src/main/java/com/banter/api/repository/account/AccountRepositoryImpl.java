@@ -23,6 +23,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
+import static com.banter.api.util.StringUtils.getLevenshteinDistancePercent;
+
 //TODO: All of the logic in here is likely broken, please fix
 
 @Repository
@@ -126,6 +128,14 @@ public class AccountRepositoryImpl implements AccountRepository {
     }
 
     //TODO: Test
+
+    /**
+     * Gets the closest matching account by name
+     * @param nameOfAccountToFind
+     * @param userId
+     * @return
+     * @throws FirestoreException
+     */
     @Override
     public Optional<AccountsDocument.Institution.Account> findAccountByName(String nameOfAccountToFind, String userId) throws FirestoreException {
         Optional<AccountsDocument> accountsDocument = getMostRecentAccountsDocument(userId);
@@ -134,7 +144,7 @@ public class AccountRepositoryImpl implements AccountRepository {
         }
         else {
             AccountsDocument.Institution.Account closestMatchingAccount = null;
-            Double closestMatchingPercent = 0.0;
+            Double closestMatchingPercent = -1.0;
             for(AccountsDocument.Institution institution : accountsDocument.get().getInstitutions()) {
                 for(AccountsDocument.Institution.Account account : institution.getAccounts()) {
                     double matchPercent = getLevenshteinDistancePercent(nameOfAccountToFind, account.getName());
@@ -144,7 +154,7 @@ public class AccountRepositoryImpl implements AccountRepository {
                     }
                 }
             }
-            if(closestMatchingPercent > NAME_MATCH_MIN_PERCENT) {
+            if(closestMatchingPercent > NAME_MATCH_MIN_PERCENT) { //TODO: We need to tune this NAME_MATCH_MIN_PERCENT
                 return Optional.of(closestMatchingAccount);
             }
             else {
@@ -153,12 +163,16 @@ public class AccountRepositoryImpl implements AccountRepository {
         }
     }
 
-    //TODO: Test
-    private double getLevenshteinDistancePercent(String left, String right) {
-        LevenshteinDistance levenshteinDistance = new LevenshteinDistance();
-        int distance = levenshteinDistance.apply(left, right);
-        String larger = ( left.length() > right.length()) ? left : right;
-        return (larger.length() - distance) / (double)larger.length(); //cast to double to do float division instead of integer
+    @Override
+    public void updateBalances(String userId) throws FirestoreException {
+        Optional<AccountsDocument> accountsDocument = this.getMostRecentAccountsDocument(userId);
+        if(!accountsDocument.isPresent()) {
+            logger.error(String.format("ERROR!! We tried to updated balances for user %s but could not find an accountsDocument for them", userId));
+            return;
+        }
+        else {
+
+        }
     }
 
 }

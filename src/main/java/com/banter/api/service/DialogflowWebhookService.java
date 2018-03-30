@@ -43,9 +43,6 @@ public class DialogflowWebhookService {
     }
 
     private DialogfloWebhookResponse getAccountBalance(String accountName, String accountType) throws FirestoreException {
-        logger.warn("Getting balance");
-        logger.warn("AccountName: "+accountName);
-        logger.warn("AccountType: "+accountType );
         Optional<AccountsDocument.Institution.Account> account = accountRepository.findAccountByName(accountName+accountType, "s9Wg8tCTApbRZpOTkqafFySA3uj2"); //tODO: remove hard code
         if(account.isPresent()) {
             return new DialogfloWebhookResponse(String.format("The balance of your %s %s account is %s", account.get().getName(), account.get().getType(), account.get().getBalances().getCurrent()));

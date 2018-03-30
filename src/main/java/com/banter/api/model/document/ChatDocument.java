@@ -23,8 +23,10 @@ public class ChatDocument {
     private String message;
     @ServerTimestamp
     private Date createdAt;
-    @NotEmpty
-    private boolean botReplySent;
+    @NonNull
+    private boolean messageIsFromUser;
+    @NonNull
+    private boolean botHasReplied;
 
     public ChatDocument() {}
 

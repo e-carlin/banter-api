@@ -1,5 +1,6 @@
 package com.banter.api.model.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Data;
@@ -16,7 +17,8 @@ public class PlaidWebhookRequest {
     @NotEmpty private String webhookCode;
     @NotEmpty private String itemId;
     private String error;
-    private int newTransactions;
+    @JsonProperty("new_transactions")
+    private int numberOfNewTransactions;
 
     public PlaidWebhookRequest() {}
 }

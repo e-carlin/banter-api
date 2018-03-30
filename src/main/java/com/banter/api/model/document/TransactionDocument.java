@@ -22,7 +22,7 @@ public class TransactionDocument {
     @NotNull
     private Double amount; //Todo: better type than double??
     @NotNull
-    private List<String> categories; //TODO: Should categories be an enum??
+    private List<String> categories;
     @NotNull
     private String categoryId;
     @NotNull
@@ -94,7 +94,7 @@ public class TransactionDocument {
 
     @Data
     @ToString
-    public class PaymentMeta {
+    public static final class PaymentMeta {
 
         private String byOrderOf;
         private String payee;
@@ -105,8 +105,7 @@ public class TransactionDocument {
         private String reason;
         private String referenceNumber;
 
-        public PaymentMeta() {
-        }
+        public PaymentMeta() { }
 
         public PaymentMeta(TransactionsGetResponse.Transaction.PaymentMeta paymentMeta) {
             this.byOrderOf = paymentMeta.getByOrderOf();

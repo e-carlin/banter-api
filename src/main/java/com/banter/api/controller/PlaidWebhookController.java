@@ -1,6 +1,7 @@
 package com.banter.api.controller;
 
 import com.banter.api.model.request.PlaidWebhookRequest;
+import com.banter.api.requestexceptions.customExceptions.FirestoreException;
 import com.banter.api.requestexceptions.customExceptions.UnsupportedWebhookTypeException;
 import com.banter.api.service.PlaidWebhookService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,8 @@ public class PlaidWebhookController {
     @PostMapping("/plaid/webhook")
     @ResponseStatus(HttpStatus.OK)
     public void plaidWebhook(@Valid @RequestBody PlaidWebhookRequest plaidWebhookRequest) throws
-            UnsupportedWebhookTypeException {
+            UnsupportedWebhookTypeException,
+            FirestoreException {
         plaidWebhookService.processWebhook(plaidWebhookRequest);
     }
 }
