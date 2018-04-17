@@ -25,15 +25,10 @@ public class DialogflowWebhookController {
 
     @PostMapping("/dialogflow/webhook")
     @ResponseStatus(HttpStatus.OK)
-//    public DialogfloWebhookResponse plaidWebhook(@Valid @RequestBody DialogflowWebhookRequest dialogflowWebhookRequest)
-    public DialogfloWebhookResponse plaidWebhook(HttpEntity<String> httpEntity)
+    public DialogfloWebhookResponse plaidWebhook(@Valid @RequestBody DialogflowWebhookRequest dialogflowWebhookRequest)
             throws FirestoreException {
 
-        String json = httpEntity.getBody();
-        logger.warn(json.toString());
-        return null;
-
-//        logger.debug("*********************** REQUEST: " + dialogflowWebhookRequest);
-//        return dialogflowWebhookService.processWebhook(dialogflowWebhookRequest);
+        logger.debug("REQUEST: " + dialogflowWebhookRequest);
+        return dialogflowWebhookService.processWebhook(dialogflowWebhookRequest);
     }
 }
