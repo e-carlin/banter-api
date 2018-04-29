@@ -25,10 +25,6 @@ public class FirestoreConfig {
 
         String firebaseCreds = System.getenv("FIREBASE_CREDS");
         InputStream firebaseServiceAccount = new ByteArrayInputStream(firebaseCreds.getBytes(StandardCharsets.UTF_8));
-//        FileInputStream firebaseServiceAccount =
-//                //TODO: can't use a file name like this. The JSON file should NOT be checked into src control
-//                new FileInputStream("banter-firebase-admin.json");
-
         FirebaseOptions firebaseOptions = new FirebaseOptions.Builder()
                 .setCredentials(GoogleCredentials.fromStream(firebaseServiceAccount))
                 .setDatabaseUrl(databaseUrl)

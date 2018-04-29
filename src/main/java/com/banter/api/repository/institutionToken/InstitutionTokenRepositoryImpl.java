@@ -36,7 +36,7 @@ public class InstitutionTokenRepositoryImpl implements InstitutionTokenRepositor
     public Optional<InstitutionTokenDocument> findByItemId(String itemId) throws FirestoreException {
         logger.debug("Trying to find institutionToken with itemId: " + itemId);
         try {
-            List<QueryDocumentSnapshot> documents = db.collection(INSTITUTION_TOKEN_COLLECTION_REF).whereEqualTo("itemId", itemId).get().get().getDocuments(); //TODO: Put itemId in a constants file
+            List<QueryDocumentSnapshot> documents = db.collection(INSTITUTION_TOKEN_COLLECTION_REF).whereEqualTo("itemId", itemId).get().get().getDocuments();
             if (documents.isEmpty()) {
                 logger.debug("Result set was empty");
                 return Optional.empty();

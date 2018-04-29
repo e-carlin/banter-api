@@ -18,8 +18,7 @@ public class DialogflowWebhookRequest {
 
     String responseId;
     @NonNull
-    @JsonProperty("session") //Our Firestore function sets the session to the userId; not sure if this is a hack or not
-            //TODO: Need to do a regex on set to get just the userId (ish following the final /)
+    @JsonProperty("session") //TODO: Our Firestore function sets the session to the userId; not sure if this is a hack or not
     String userId;
     QueryResult queryResult;
 

@@ -42,10 +42,10 @@ public class PlaidClientService {
     private String plaidPublicKey;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public PlaidClientService(@Value("${plaid.clientId}") String plaidClientId, @Value("${plaid.secretKey}") String plaidSecretKey, @Value("${plaid.publicKey}") String plaidPublicKey) {
-        this.plaidClientId = plaidClientId;
-        this.plaidSecretKey = plaidSecretKey;
-        this.plaidPublicKey = plaidPublicKey;
+    public PlaidClientService() {
+        this.plaidClientId = System.getenv("PLAID_CLIENT_ID");
+        this.plaidSecretKey = System.getenv("PLAID_SECRET_KEY");
+        this.plaidPublicKey = System.getenv("PLAID_PUBLIC_KEY");
 
         this.plaidClient = PlaidClient.newBuilder()
                 .clientIdAndSecret(this.plaidClientId, this.plaidSecretKey)
@@ -123,7 +123,7 @@ public class PlaidClientService {
                         .execute();
 
                 //TODO: Change to response.isSuccessful()
-                if (response.errorBody() != null) { //Plaid errored out
+                if (!response.isSuccessful()) { //Plaid errored out
                     logger.error("There was an error returned from Plaid: "+response.errorBody().string());
                     throw new PlaidGetTransactionsException("Error response from Plaid: " + response.errorBody().string());
                 } else {

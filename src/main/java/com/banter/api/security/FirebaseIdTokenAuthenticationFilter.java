@@ -24,7 +24,6 @@ public class FirebaseIdTokenAuthenticationFilter extends GenericFilterBean {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        logger.debug("In FirebaseIdTokenAuthenticationFilter.doFilter()");
         Authentication authentication = null;
         try {
             authentication = firebaseIdTokenProcessor.getAuthentication((HttpServletRequest)request);
@@ -34,7 +33,7 @@ public class FirebaseIdTokenAuthenticationFilter extends GenericFilterBean {
             }
         }
         catch (Exception e) {
-            logger.error("Error occurred while processing Firbease Id token: "+e);
+            logger.warn("Firbease Id token: "+e);
             SecurityContextHolder.clearContext();
         }
         chain.doFilter(request, response);
